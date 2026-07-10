@@ -205,7 +205,38 @@
 }
 
 .themeButton {
-  padding-inline: 8px;
+  display: grid;
+  width: 72px;
+  height: 44px;
+  padding: 3px;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+  border-color: var(--color-fd-border);
+  border-radius: 8px;
+}
+
+.themeCell {
+  display: grid;
+  height: 36px;
+  border-radius: 5px;
+  place-items: center;
+  color: var(--color-fd-muted-foreground);
+}
+
+.themeCell svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.themeButton[aria-pressed='false'] .sunCell,
+.themeButton[aria-pressed='true'] .moonCell {
+  background: var(--color-fd-accent);
+  color: var(--color-fd-accent-foreground);
 }
 
 .menuButton {
@@ -307,7 +338,7 @@
   }
 
   .themeButton {
-    padding: 0;
+    padding: 3px;
   }
 }
 

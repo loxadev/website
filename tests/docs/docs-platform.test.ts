@@ -96,6 +96,23 @@ describe('static documentation platform', () => {
     );
   });
 
+  test('uses the accessible theme contrast and motion contract', async () => {
+    const globalStyles = await readText('app/globals.css');
+    const headerStyles = await readText('components/site-header.module.css');
+
+    expect(globalStyles).toContain('--color-fd-muted-foreground: #555c58');
+    expect(globalStyles).toMatch(
+      /\.themeTransition[\s\S]*transition-property:[^;]*color[^;]*background-color[^;]*border-color[^;]*outline-color[^;]*fill[^;]*stroke/,
+    );
+    expect(globalStyles).toContain('transition-duration: 190ms');
+    expect(globalStyles).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.themeTransition[\s\S]*transition-duration: 0\.01ms !important/,
+    );
+    expect(globalStyles).not.toMatch(/transition:\s*all\b/);
+    expect(headerStyles).toContain('width: 72px');
+    expect(headerStyles).toContain('height: 44px');
+  });
+
   test('marks generated discovery routes as static exports', async () => {
     const robotsText = await readText('app/robots.ts');
     const sitemapText = await readText('app/sitemap.ts');

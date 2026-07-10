@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/site-header';
 const mocks = vi.hoisted(() => ({
   setOpenSearch: vi.fn(),
   setTheme: vi.fn(),
+  resolvedTheme: 'light',
 }));
 
 vi.mock('fumadocs-ui/contexts/search', () => ({
@@ -20,7 +21,7 @@ vi.mock('fumadocs-ui/contexts/search', () => ({
 
 vi.mock('fumadocs-ui/provider/base', () => ({
   useTheme: () => ({
-    resolvedTheme: 'light',
+    resolvedTheme: mocks.resolvedTheme,
     setTheme: mocks.setTheme,
   }),
 }));
@@ -29,6 +30,7 @@ describe('SiteHeader', () => {
   beforeEach(() => {
     mocks.setOpenSearch.mockReset();
     mocks.setTheme.mockReset();
+    mocks.resolvedTheme = 'light';
   });
 
   it('renders the shared navigation and operates its controls', async () => {
@@ -41,6 +43,13 @@ describe('SiteHeader', () => {
     expect(container.querySelectorAll('img[src^="/brand/"]')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Search documentation' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Switch to dark theme' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Switch to dark theme' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    expect(container.querySelectorAll('[data-theme-icon]')).toHaveLength(2);
+    expect(screen.queryByText('Dark')).not.toBeInTheDocument();
+    expect(screen.queryByText('Light')).not.toBeInTheDocument();
 
     const menuButton = screen.getByRole('button', { name: 'Open navigation' });
     expect(menuButton).toHaveAttribute('aria-expanded', 'false');
@@ -57,5 +66,17 @@ describe('SiteHeader', () => {
       'true',
     );
     expect(screen.getByRole('navigation', { name: 'Mobile' })).toBeInTheDocument();
+  });
+
+  it('switches back to light from the dark theme', async () => {
+    mocks.resolvedTheme = 'dark';
+    const user = userEvent.setup();
+
+    render(<SiteHeader />);
+    const themeButton = screen.getByRole('button', { name: 'Switch to light theme' });
+
+    expect(themeButton).toHaveAttribute('aria-pressed', 'true');
+    await user.click(themeButton);
+    expect(mocks.setTheme).toHaveBeenCalledWith('light');
   });
 });

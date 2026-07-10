@@ -32,7 +32,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
-      <body className={[instrumentSans.variable, ibmPlexMono.variable].join(' ')}>
+      <body
+        className={[instrumentSans.variable, ibmPlexMono.variable, 'themeTransition'].join(' ')}
+      >
         <RootProvider
           search={{
             options: { type: 'static' },
@@ -41,7 +43,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
             attribute: 'class',
             defaultTheme: 'system',
             enableSystem: true,
-            disableTransitionOnChange: true,
+            disableTransitionOnChange: false,
           }}
         >
           <a className="skipLink" href="#main-content">
