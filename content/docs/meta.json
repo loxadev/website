@@ -1,4 +1,4 @@
 {
   "title": "Loxa docs",
-  "pages": ["index"]
+  "pages": ["index", "doctor", "models", "cli", "troubleshooting", "project", "experimental"]
 }

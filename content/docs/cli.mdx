@@ -1,0 +1,71 @@
+---
+title: CLI reference
+description: Commands available on the current public main branch.
+---
+
+This reference is limited to public `origin/main@a59aec2` and project version
+`0.1.0-dev`.
+
+| Command | Argument | Purpose |
+| --- | --- | --- |
+| `loxa doctor` | None | Report machine and local-tool observations. |
+| `loxa list` | None | List every built-in model and its local file status. |
+| `loxa pull <id>` | Required registry ID | Download or resume a registry model. |
+| `loxa rm <id>` | Required registry ID | Remove the model's final and partial files. |
+
+## `loxa doctor`
+
+```text
+loxa doctor
+```
+
+The command takes no arguments. It prints a `Machine` section with chip, core, RAM,
+swap, root disk, and operating system fields. A `Detected tools` section prints each
+tool's install state, run state, and detection evidence.
+
+A completed report exits `0`. An output error follows the common CLI error path and
+exits `1`. See [Doctor](/docs/doctor) for the observation boundaries.
+
+## `loxa list`
+
+```text
+loxa list
+```
+
+The command takes no arguments. It prints one row for each registry entry with these
+columns: `id`, `params`, `quant`, `size GB`, `license`, and `status`. Status is
+`downloaded`, `partial`, or `not downloaded`, based on the final and `.part` files in
+`~/.loxa/models`.
+
+A completed listing exits `0`. An output error follows the common CLI error path and
+exits `1`.
+
+## `loxa pull <id>`
+
+```text
+loxa pull <id>
+```
+
+`id` is required and must match the built-in registry. During a transfer, progress
+includes the filename, transferred and total bytes, percentage, transfer rate, and
+estimated time remaining. On success, stdout contains the final model path and the
+command exits `0`.
+
+An unknown ID prints the unknown ID and the valid registry IDs to stderr, then exits
+`1`. A download failure prints the ID and failure reason to stderr, then exits `1`.
+
+## `loxa rm <id>`
+
+```text
+loxa rm <id>
+```
+
+`id` is required and must match the built-in registry. The command removes both the
+final model file and its `.part` file. It reports each removed path, or reports that
+nothing is present for the ID. Either successful result exits `0`.
+
+An unknown ID prints the unknown ID and the valid registry IDs to stderr, then exits
+`1`. A filesystem or output error follows the common CLI error path and exits `1`.
+
+See [Models](/docs/models) for registry and file behavior and
+[Troubleshooting](/docs/troubleshooting) for known failure cases.
