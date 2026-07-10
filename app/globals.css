@@ -175,11 +175,15 @@ a {
   max-width: 808px;
 }
 
-#nd-sidebar [data-search-full] {
+#nd-sidebar a,
+#nd-sidebar button,
+#main-content button[aria-label='Copy Anchor Link'],
+#main-content button[aria-label='Copy Text'],
+#main-content button[aria-label='Copied Text'] {
+  min-width: 44px;
   min-height: 44px;
 }
 
-#nd-sidebar button[aria-label='Collapse Sidebar'],
 [data-sidebar-panel] button,
 [role='dialog'] button[aria-label='Close Search'] {
   min-width: 44px;
@@ -187,7 +191,8 @@ a {
 }
 
 .backdrop-blur-xs,
-.backdrop-blur-sm {
+.backdrop-blur-sm,
+.backdrop-blur-lg {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
