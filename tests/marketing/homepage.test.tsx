@@ -63,6 +63,7 @@ describe('MarketingPage', () => {
     expect(styles).toContain(
       'grid-template-columns: 64px minmax(0, 1fr);',
     );
+    expect(styles).toMatch(/\.narrativeNumber\s*\{[^}]*font-size:\s*1rem;/);
     expect(styles).not.toContain('.narrativeRow:nth-child(even)');
   });
 });

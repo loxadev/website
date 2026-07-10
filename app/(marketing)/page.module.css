@@ -140,6 +140,7 @@
 
 .narrativeNumber {
   color: var(--loxa-mineral);
+  font-size: 1rem;
 }
 
 .narrativeCopy {
