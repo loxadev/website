@@ -3,16 +3,10 @@
   top: 0;
   z-index: 40;
   height: var(--loxa-header-height);
-  border-bottom: 1px solid color-mix(in srgb, var(--loxa-mineral) 38%, transparent);
-  background: var(--loxa-snow);
-  color: var(--loxa-ink);
+  border-bottom: 1px solid var(--loxa-divider);
+  background: var(--loxa-surface);
+  color: var(--loxa-text);
   backdrop-filter: none;
-}
-
-:global(.dark) .header {
-  border-bottom-color: color-mix(in srgb, var(--loxa-snow) 18%, transparent);
-  background: var(--loxa-ink);
-  color: var(--loxa-snow);
 }
 
 .inner {
@@ -108,12 +102,12 @@
   display: inline-flex;
   min-height: 44px;
   padding-inline: 16px;
-  border: 1px solid var(--loxa-ink);
+  border: 1px solid var(--loxa-control-border);
   border-radius: 6px;
   align-items: center;
   justify-content: center;
-  background: var(--loxa-signal);
-  color: var(--loxa-ink);
+  background: var(--loxa-accent);
+  color: var(--loxa-accent-text);
   font-size: 0.9375rem;
   font-weight: 600;
   text-decoration: none;
@@ -152,11 +146,7 @@
   padding-inline: 10px;
   align-items: center;
   gap: 8px;
-  border-color: var(--loxa-mineral);
-}
-
-:global(.dark) .searchButton {
-  border-color: var(--loxa-glacier);
+  border-color: var(--loxa-control-border);
 }
 
 .searchButton:hover,
@@ -196,12 +186,8 @@
 }
 
 .hotkey {
-  color: var(--loxa-mineral);
+  color: var(--loxa-text-muted);
   font-size: 0.6875rem;
-}
-
-:global(.dark) .hotkey {
-  color: var(--loxa-glacier);
 }
 
 .themeButton {
@@ -211,7 +197,7 @@
   padding: 3px;
   grid-template-columns: repeat(2, 1fr);
   align-items: center;
-  border-color: var(--color-fd-border);
+  border-color: var(--loxa-control-border);
   border-radius: 8px;
 }
 
@@ -233,8 +219,7 @@
   stroke-width: 1.7;
 }
 
-.themeButton[aria-pressed='false'] .sunCell,
-.themeButton[aria-pressed='true'] .moonCell {
+.themeCell[data-selected-theme] {
   background: var(--color-fd-accent);
   color: var(--color-fd-accent-foreground);
 }
@@ -265,19 +250,14 @@
   left: 0;
   display: none;
   padding: 12px 20px 18px;
-  border-bottom: 1px solid color-mix(in srgb, var(--loxa-mineral) 38%, transparent);
-  background: var(--loxa-snow);
-}
-
-:global(.dark) .mobileNavigation {
-  border-bottom-color: color-mix(in srgb, var(--loxa-snow) 18%, transparent);
-  background: var(--loxa-ink);
+  border-bottom: 1px solid var(--loxa-divider);
+  background: var(--loxa-surface);
 }
 
 .mobileLink {
   width: 100%;
   justify-content: space-between;
-  border-bottom: 1px solid color-mix(in srgb, var(--loxa-mineral) 20%, transparent);
+  border-bottom: 1px solid var(--loxa-divider);
 }
 
 .srOnly {

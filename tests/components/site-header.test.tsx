@@ -87,6 +87,18 @@ describe('SiteHeader', () => {
     expect(mocks.setTheme).toHaveBeenCalledWith('light');
   });
 
+  it('keeps the theme choice neutral until the client theme is resolved', () => {
+    mocks.resolvedTheme = undefined as unknown as string;
+
+    const { container } = render(<SiteHeader />);
+    const themeButton = screen.getByRole('button', { name: 'Choose color theme' });
+
+    expect(themeButton).toBeDisabled();
+    expect(themeButton).not.toHaveAttribute('aria-pressed');
+    expect(themeButton).toHaveAttribute('data-theme-ready', 'false');
+    expect(container.querySelector('[data-selected-theme]')).not.toBeInTheDocument();
+  });
+
   it('limits theme transitions to the toggle window', () => {
     vi.useFakeTimers();
 
