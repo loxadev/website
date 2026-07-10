@@ -90,6 +90,19 @@ export function DocsToolbar() {
   }, [open]);
 
   useEffect(() => {
+    if (!open) return;
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setOpen(false);
+    }
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [open]);
+
+  useEffect(() => {
     if (!window.matchMedia) return;
 
     const desktop = window.matchMedia('(min-width: 1024px)');

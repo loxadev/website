@@ -65,13 +65,27 @@ describe('static documentation platform', () => {
     expect(globalStyles).toContain('[data-sidebar-placeholder]');
     expect(globalStyles).toContain('[data-sidebar-panel]');
     expect(globalStyles).toContain('max-width: 808px');
-    expect(globalStyles).toContain('min-width: 44px');
-    expect(globalStyles).toContain('min-height: 44px');
 
     expect(toolbarStyles).toContain('min-width: 44px');
     expect(toolbarStyles).toContain('min-height: 44px');
     expect(toolbarStyles).toContain('backdrop-filter: none');
     expect(headerStyles).toContain('z-index: 40');
+  });
+
+  test('gives sidebar and document copy controls 44-pixel targets', async () => {
+    const globalStyles = await readText('app/globals.css');
+
+    expect(globalStyles).toMatch(
+      /#nd-sidebar a,\s*#nd-sidebar button,\s*#main-content button\[aria-label='Copy Anchor Link'\],\s*#main-content button\[aria-label='Copy Text'\],\s*#main-content button\[aria-label='Copied Text'\]\s*\{\s*min-width: 44px;\s*min-height: 44px;/,
+    );
+  });
+
+  test('removes every backdrop blur utility used by the documentation UI', async () => {
+    const globalStyles = await readText('app/globals.css');
+
+    expect(globalStyles).toMatch(
+      /\.backdrop-blur-xs,\s*\.backdrop-blur-sm,\s*\.backdrop-blur-lg\s*\{\s*-webkit-backdrop-filter: none !important;\s*backdrop-filter: none !important;/,
+    );
   });
 
   test('marks generated discovery routes as static exports', async () => {

@@ -161,6 +161,22 @@ describe('DocsToolbar', () => {
     expect(mocks.removeBreakpointListener).not.toHaveBeenCalled();
   });
 
+  it('closes on a window Escape key event and returns focus to the trigger', async () => {
+    const user = userEvent.setup();
+    render(<DocsToolbar />);
+    const trigger = screen.getByRole('button', {
+      name: 'Open documentation navigation',
+    });
+
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+    expect(trigger).toHaveFocus();
+  });
+
   it('opens documentation search from a standalone 44-pixel control', async () => {
     const user = userEvent.setup();
     render(<DocsToolbar />);
