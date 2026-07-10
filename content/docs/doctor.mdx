@@ -1,0 +1,51 @@
+---
+title: Doctor
+description: Machine and local-tool observations reported by loxa doctor.
+---
+
+`loxa doctor` inspects the machine where the command is running. This page
+describes the command on public `origin/main@a59aec2`.
+
+## Syntax
+
+```text
+loxa doctor
+```
+
+The command takes no arguments.
+
+## Machine observations
+
+The `Machine` section reports:
+
+- the chip name;
+- physical and logical core counts;
+- total, available, and used RAM;
+- total and used swap;
+- total and available capacity for the root disk;
+- the operating system name and version.
+
+RAM, swap, and disk calculations use 1 GiB = `1024^3` bytes, while the current CLI
+labels the displayed values `GB`. A root disk value is reported as `unknown` when the
+current system does not expose it to the detector.
+
+## Local-tool observations
+
+The `Detected tools` section reports an install state, a run state, and the evidence
+used for each observation.
+
+For Ollama, installation evidence comes from an `ollama` binary on `PATH` or an
+existing `~/.ollama` directory. Run evidence comes from TCP reachability at
+`127.0.0.1:11434`.
+
+For LM Studio, installation evidence comes from `/Applications/LM Studio.app`, an
+existing `~/.lmstudio` directory, or an `lms` binary on `PATH`. Run evidence comes
+from TCP reachability at `127.0.0.1:1234`.
+
+Port reachability shows that the address accepted a connection. It does not identify
+the process listening there.
+
+Doctor reports observations from the current machine. It does not determine which model the machine can run.
+
+See [Models](/docs/models) for the built-in registry and [CLI reference](/docs/cli)
+for command exit behavior.

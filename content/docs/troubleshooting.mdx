@@ -1,0 +1,69 @@
+---
+title: Troubleshooting
+description: Evidence-backed checks for errors on the current public main branch.
+---
+
+This page covers errors from public `origin/main@a59aec2`. It does not describe
+experimental branch commands.
+
+## Unknown model ID
+
+`loxa pull <id>` and `loxa rm <id>` reject an ID that is not in the built-in registry.
+The error includes `unknown model id`, followed by the valid IDs.
+
+Run `loxa list` and use an ID exactly as printed. The full registry is also listed on
+the [Models](/docs/models#registry) page.
+
+## Authentication required or Hugging Face 403
+
+An HTTP 401 is reported as authentication required. An HTTP 403 is reported as
+forbidden and points to the token and gated-repository access checks.
+
+Check whether the repository requires authentication or accepted access terms. Then
+check the `HF_TOKEN`, `HF_TOKEN_PATH`, `HF_HOME`, `XDG_CACHE_HOME`, and
+`HF_HUB_DISABLE_IMPLICIT_TOKEN` settings described in
+[Models](/docs/models#hugging-face-token-variables). Do not print a token while
+diagnosing the request.
+
+## Insufficient disk space
+
+Before the model-body transfer starts, Loxa compares available space with the bytes
+still needed. A shortfall is reported with the needed and available byte counts.
+
+Free enough space under the filesystem containing `~/.loxa/models`, or remove model
+files you no longer need with `loxa rm <id>`, then retry the pull.
+
+## Unexpected remote size
+
+Loxa first probes the remote file size. If it differs from the size pinned in the
+registry, the pull stops with a size mismatch before the model body is transferred.
+
+Retry only after confirming that the selected ID and remote artifact still correspond
+to the same registry entry.
+
+## Invalid or incompatible resume range
+
+For a resumed transfer, a partial response must include a valid `Content-Range` whose
+start matches the local `.part` size and whose total matches the registry size. A bad
+or missing value is reported as an invalid `Content-Range` header.
+
+Removing the affected model with `loxa rm <id>` clears both final and partial files so
+the next pull starts without that partial range.
+
+## Completed size mismatch
+
+After the response ends, Loxa compares the completed byte count with the registry
+size. A truncated or oversized result is reported with expected and actual byte
+counts. The `.part` file can remain after an interrupted short transfer, allowing a
+later pull to resume when the remote server supplies a compatible range.
+
+## SHA-256 mismatch
+
+After the expected number of bytes is present, Loxa compares the file's SHA-256 digest
+with the registry value. A mismatch is reported with the expected and actual digests,
+and the completed `.part` file is removed instead of being renamed.
+
+Retry the pull. If the mismatch repeats, the downloaded artifact and the registry
+digest do not agree.
+
+Return to the [CLI reference](/docs/cli) for command arguments and exit behavior.

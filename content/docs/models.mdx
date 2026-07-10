@@ -1,0 +1,61 @@
+---
+title: Models
+description: Registry IDs, model files, downloads, verification, and removal.
+---
+
+Loxa stores managed model files in `~/.loxa/models`. This page describes public
+`origin/main@a59aec2`.
+
+## Registry
+
+The built-in registry contains these six IDs:
+
+| ID | Params | Quant | License label |
+| --- | --- | --- | --- |
+| `qwen3-coder-30b-a3b-q4` | 30B-A3B | Q4_K_M | apache-2.0 |
+| `qwen3-coder-30b-a3b-q8` | 30B-A3B | Q8_0 | apache-2.0 |
+| `qwen25-coder-7b-q4` | 7B | Q4_K_M | apache-2.0 |
+| `qwen25-coder-7b-q8` | 7B | Q8_0 | apache-2.0 |
+| `gemma-3-4b-it-q4` | 4B | Q4_K_M | gemma |
+| `qwen3-14b-q4` | 14B | Q4_K_M | apache-2.0 |
+
+The model license labels are registry metadata for the model artifacts. They are
+separate from the Loxa project's [Apache License 2.0](/docs/project#license).
+
+## Files and partial downloads
+
+Each registry entry has a final GGUF filename. While a transfer is incomplete, Loxa
+writes the same filename with a `.part` suffix. Both live under `~/.loxa/models`.
+
+Before transferring a model, Loxa requests the remote size and compares it with the
+size pinned in the registry. It also checks available disk space for the bytes still
+needed.
+
+When a non-empty `.part` file is smaller than the expected file, Loxa requests the
+remaining range. A partial response must begin at the requested byte and report the
+expected total size. If the server ignores that range and returns a complete response,
+Loxa removes the partial file and restarts from byte zero.
+
+After the response completes, Loxa checks the completed byte count and verifies the
+SHA-256 digest. Only then does it rename the `.part` file to the final filename. An
+already completed file is also checked for its expected size and SHA-256 digest before
+it is accepted as present.
+
+`loxa rm <id>` removes both the final file and its `.part` file when they exist.
+
+## Hugging Face token variables
+
+Loxa resolves Hugging Face credentials in this order:
+
+1. A non-empty `HF_HUB_DISABLE_IMPLICIT_TOKEN` disables token resolution.
+2. A non-empty `HF_TOKEN` value is used.
+3. `HF_TOKEN_PATH` names a token file when `HF_TOKEN` is not available.
+4. `HF_HOME` changes the directory containing the default `token` file.
+5. When `HF_HOME` is unset, `XDG_CACHE_HOME` changes the cache root, with the token at
+   `$XDG_CACHE_HOME/huggingface/token`.
+6. Otherwise, the default token path is `~/.cache/huggingface/token`.
+
+Do not place a real token in documentation or command examples.
+
+See [CLI reference](/docs/cli) for command syntax and
+[Troubleshooting](/docs/troubleshooting) for download errors.
