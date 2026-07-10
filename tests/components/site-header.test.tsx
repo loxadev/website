@@ -1,5 +1,8 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SiteHeader } from '@/components/site-header';
@@ -97,6 +100,33 @@ describe('SiteHeader', () => {
     expect(themeButton).not.toHaveAttribute('aria-pressed');
     expect(themeButton).toHaveAttribute('data-theme-ready', 'false');
     expect(container.querySelector('[data-selected-theme]')).not.toBeInTheDocument();
+  });
+
+  it('hydrates a system-dark theme from the same neutral server markup', async () => {
+    mocks.resolvedTheme = 'dark';
+    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const host = document.createElement('div');
+    host.innerHTML = renderToString(<SiteHeader />);
+    document.body.append(host);
+
+    expect(host.querySelector('[data-theme-ready="false"]')).toBeDisabled();
+
+    let root: ReturnType<typeof hydrateRoot>;
+    await act(async () => {
+      root = hydrateRoot(host, <SiteHeader />);
+    });
+
+    expect(consoleError).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Switch to light theme' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Switch to light theme' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+
+    await act(async () => root!.unmount());
+    host.remove();
+    consoleError.mockRestore();
   });
 
   it('limits theme transitions to the toggle window', () => {

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useSearchContext } from 'fumadocs-ui/contexts/search';
 import { useTheme } from 'fumadocs-ui/provider/base';
 
@@ -9,13 +9,22 @@ import { siteLinks } from '@/lib/site';
 
 import styles from './site-header.module.css';
 
+const subscribeToClientMount = () => () => undefined;
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export function SiteControls() {
   const { setOpenSearch } = useSearchContext();
   const { resolvedTheme, setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const themeTransitionTimerRef = useRef<number | null>(null);
-  const themeReady = resolvedTheme === 'light' || resolvedTheme === 'dark';
+  const mounted = useSyncExternalStore(
+    subscribeToClientMount,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+  const themeReady = mounted && (resolvedTheme === 'light' || resolvedTheme === 'dark');
   const dark = themeReady && resolvedTheme === 'dark';
 
   useEffect(() => {
