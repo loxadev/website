@@ -125,4 +125,16 @@ describe('static documentation platform', () => {
     expect(robotsText).toContain("dynamic = 'force-static'");
     expect(sitemapText).toContain("dynamic = 'force-static'");
   });
+
+  test('offers copy, view, and GitHub edit actions for processed Markdown', async () => {
+    const pageText = await readText('app/docs/[[...slug]]/page.tsx');
+    const actionsText = await readText('components/docs-page-actions.tsx');
+
+    expect(pageText).toContain('DocsPageActions');
+    expect(actionsText).toContain('MarkdownCopyButton');
+    expect(actionsText).toContain('Copy Markdown');
+    expect(actionsText).toContain('View Markdown');
+    expect(actionsText).toContain('Edit on GitHub');
+    expect(actionsText).toContain('min-h-11');
+  });
 });

@@ -16,6 +16,13 @@ const documentRoutes = [
 ];
 
 const searchRoute = '/api/search';
+const llmRoutes = [
+  '/llms.txt',
+  '/llms-full.txt',
+  '/llms.mdx/docs/index',
+  '/llms.mdx/docs/cli',
+  '/llms.mdx/docs/experimental/supervisor',
+];
 const nextServerDirectory = '_next/server';
 
 const privatePatterns = [
@@ -78,6 +85,7 @@ function documentCandidates(route) {
   const normalized = route.replace(/^\/+|\/+$/g, '');
 
   return [
+    join(outputDirectory, normalized),
     join(outputDirectory, normalized + '.html'),
     join(outputDirectory, normalized, 'index.html'),
   ];
@@ -245,13 +253,14 @@ async function main() {
   }
 
   await Promise.all(documentRoutes.map(requireDocument));
+  await Promise.all(llmRoutes.map(requireDocument));
   const searchPayload = await requireSearchPayload();
   const emittedFiles = await collectFiles(outputDirectory);
 
   verifyRuntimeArtifacts(emittedFiles);
   await verifyPublicText(emittedFiles, searchPayload);
 
-  const checkedRouteCount = documentRoutes.length + 1;
+  const checkedRouteCount = documentRoutes.length + llmRoutes.length + 1;
   console.log('Static export check passed: ' + checkedRouteCount + ' routes checked.');
 }
 
