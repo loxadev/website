@@ -36,6 +36,10 @@ describe('MarketingPage', () => {
     expect(within(workflow).getByText('loxa list')).toBeVisible();
     expect(within(workflow).getByText('loxa pull <model-id>')).toBeVisible();
     expect(within(workflow).getByText('~/.loxa/models')).toBeVisible();
+    expect(within(workflow).getByText('Size and SHA-256 checks').closest('li')).toHaveAttribute(
+      'aria-current',
+      'step',
+    );
 
     for (const image of container.querySelectorAll('[role="img"]')) {
       expect(
