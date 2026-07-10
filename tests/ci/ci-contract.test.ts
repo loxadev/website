@@ -230,6 +230,51 @@ describe('CI and static-export contract', () => {
     }
   });
 
+  test('scans extensionless per-page Markdown output', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      await writeFile(
+        join(fixtureDirectory, 'out/llms.mdx/docs/cli'),
+        'Local source: /Users/example/private-project',
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining('absolute user path'),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
+  test.each([
+    ['unsupported readiness claim', 'This is production-ready.'],
+    ['credential-like token', 'ghp_123456789012345678901234567890'],
+  ])('rejects unsafe generated Markdown (%s)', async (label, canary) => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      await writeFile(join(fixtureDirectory, 'out/llms.mdx/docs/cli'), canary);
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({ code: 1, stderr: expect.stringContaining(label) });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
+  test('caps the size of each generated Markdown artifact', () => {
+    expect(staticCheck).toContain('maxGeneratedMarkdownBytes');
+    expect(staticCheck).toContain('generated Markdown exceeds size ceiling');
+    expect(staticCheck).toContain("path.startsWith('llms.mdx/docs/')");
+  });
+
   test('rejects an empty advanced Orama payload', async () => {
     const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
 

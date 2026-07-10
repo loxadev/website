@@ -39,6 +39,7 @@ describe('AI-readable documentation routes', () => {
     expect(route).toContain("'text/markdown; charset=utf-8'");
     expect(route).toContain("status: 404");
     expect(helper).toContain('Maturity: Experimental');
+    expect(helper).toContain('/edit/main/');
     expect(helper).not.toMatch(/process\.env|readFile|internal-context|\.superpowers/);
   });
 });

@@ -136,5 +136,7 @@ describe('static documentation platform', () => {
     expect(actionsText).toContain('View Markdown');
     expect(actionsText).toContain('Edit on GitHub');
     expect(actionsText).toContain('min-h-11');
+    expect(actionsText).toContain('<nav');
+    expect(actionsText).toContain('aria-label="Page actions"');
   });
 });

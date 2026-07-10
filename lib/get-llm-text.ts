@@ -17,7 +17,7 @@ export function markdownUrlForPage(page: DocsPage): string {
 }
 
 export function githubUrlForPage(page: DocsPage): string {
-  return `https://github.com/loxadev/website/blob/main/content/docs/${page.path}`;
+  return `https://github.com/loxadev/website/edit/main/content/docs/${page.path}`;
 }
 
 export async function getLlmText(page: DocsPage): Promise<string> {
