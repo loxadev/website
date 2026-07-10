@@ -1,0 +1,2 @@
+# Preserve upstream CRLF and trailing-space bytes in audited vendored font licenses.
+app/fonts/LICENSE-*.txt whitespace=-blank-at-eol,cr-at-eol

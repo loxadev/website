@@ -34,6 +34,7 @@ const tsConfig = JSON.parse(await readText('tsconfig.json')) as {
 const nextEnvironmentTypes = await readText('next-env.d.ts');
 const nextConfigText = await readText('next.config.mjs');
 const sourceConfigText = await readText('source.config.ts');
+const gitAttributes = await readText('.gitattributes');
 const brandDirectory = join(repositoryRoot, 'public/brand');
 const brandFiles = (await readdir(brandDirectory))
   .filter((file) => file.endsWith('.svg'))
@@ -82,6 +83,12 @@ describe('deterministic static platform', () => {
     );
     expect(await sha256('app/fonts/LICENSE-ibm-plex.txt')).toBe(
       '7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da',
+    );
+  });
+
+  test('scopes vendored license whitespace exceptions', () => {
+    expect(gitAttributes.split(/\r?\n/)).toContain(
+      'app/fonts/LICENSE-*.txt whitespace=-blank-at-eol,cr-at-eol',
     );
   });
 
