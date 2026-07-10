@@ -88,11 +88,11 @@ describe('static documentation platform', () => {
     );
   });
 
-  test('aligns code block copy controls with the top edge', async () => {
+  test('centers code block copy controls vertically', async () => {
     const globalStyles = await readText('app/globals.css');
 
     expect(globalStyles).toMatch(
-      /#main-content figure > \.backdrop-blur-lg\s*\{\s*top: 4px;/,
+      /#main-content figure > \.backdrop-blur-lg\s*\{\s*top: 0;\s*bottom: 0;\s*display: flex;\s*align-items: center;/,
     );
   });
 
