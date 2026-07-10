@@ -1,0 +1,206 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+@theme {
+  --color-fd-background: #f4f6f0;
+  --color-fd-foreground: #101410;
+  --color-fd-muted: color-mix(in srgb, #c5ddd4 34%, #f4f6f0);
+  --color-fd-muted-foreground: #69716c;
+  --color-fd-popover: #f4f6f0;
+  --color-fd-popover-foreground: #101410;
+  --color-fd-card: color-mix(in srgb, #c5ddd4 20%, #f4f6f0);
+  --color-fd-card-foreground: #101410;
+  --color-fd-border: color-mix(in srgb, #69716c 38%, transparent);
+  --color-fd-primary: #101410;
+  --color-fd-primary-foreground: #f4f6f0;
+  --color-fd-secondary: color-mix(in srgb, #c5ddd4 34%, #f4f6f0);
+  --color-fd-secondary-foreground: #101410;
+  --color-fd-accent: color-mix(in srgb, #c5ddd4 54%, transparent);
+  --color-fd-accent-foreground: #101410;
+  --color-fd-ring: #101410;
+  --color-fd-overlay: color-mix(in srgb, #101410 24%, transparent);
+  --color-fd-info: #101410;
+  --color-fd-warning: #101410;
+  --color-fd-error: #69716c;
+  --color-fd-success: #101410;
+  --color-fd-idea: #69716c;
+  --color-fd-diff-remove: color-mix(in srgb, #69716c 14%, transparent);
+  --color-fd-diff-remove-symbol: #69716c;
+  --color-fd-diff-add: color-mix(in srgb, #b7ed62 14%, transparent);
+  --color-fd-diff-add-symbol: #101410;
+}
+
+:root {
+  --loxa-ink: #101410;
+  --loxa-snow: #f4f6f0;
+  --loxa-mineral: #69716c;
+  --loxa-glacier: #c5ddd4;
+  --loxa-signal: #b7ed62;
+  --loxa-header-height: 64px;
+  color-scheme: light;
+}
+
+.dark {
+  --color-fd-background: #101410;
+  --color-fd-foreground: #f4f6f0;
+  --color-fd-muted: color-mix(in srgb, #f4f6f0 7%, #101410);
+  --color-fd-muted-foreground: #c5ddd4;
+  --color-fd-popover: color-mix(in srgb, #f4f6f0 7%, #101410);
+  --color-fd-popover-foreground: #f4f6f0;
+  --color-fd-card: color-mix(in srgb, #f4f6f0 6%, #101410);
+  --color-fd-card-foreground: #f4f6f0;
+  --color-fd-border: color-mix(in srgb, #f4f6f0 18%, transparent);
+  --color-fd-primary: #b7ed62;
+  --color-fd-primary-foreground: #101410;
+  --color-fd-secondary: color-mix(in srgb, #f4f6f0 7%, #101410);
+  --color-fd-secondary-foreground: #f4f6f0;
+  --color-fd-accent: color-mix(in srgb, #b7ed62 14%, transparent);
+  --color-fd-accent-foreground: #f4f6f0;
+  --color-fd-ring: #b7ed62;
+  --color-fd-overlay: color-mix(in srgb, #101410 72%, transparent);
+  --color-fd-info: #c5ddd4;
+  --color-fd-warning: #b7ed62;
+  --color-fd-error: #c5ddd4;
+  --color-fd-success: #b7ed62;
+  --color-fd-idea: #c5ddd4;
+  --color-fd-diff-remove-symbol: #c5ddd4;
+  --color-fd-diff-add-symbol: #b7ed62;
+  color-scheme: dark;
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: color-mix(in srgb, #f4f6f0 7%, #101410);
+  --color-fd-secondary: color-mix(in srgb, #f4f6f0 7%, #101410);
+  --color-fd-muted-foreground: #c5ddd4;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+  background: var(--loxa-snow);
+}
+
+html.dark {
+  background: var(--loxa-ink);
+}
+
+body {
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--loxa-snow);
+  color: var(--loxa-ink);
+  font-family: var(--font-instrument-sans), sans-serif;
+  font-stretch: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+.dark body {
+  background: var(--loxa-ink);
+  color: var(--loxa-snow);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+code,
+pre,
+kbd {
+  font-family: var(--font-ibm-plex-mono), monospace;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--loxa-glacier);
+  color: var(--loxa-ink);
+}
+
+.dark ::selection {
+  background: color-mix(in srgb, var(--loxa-signal) 28%, var(--loxa-ink));
+  color: var(--loxa-snow);
+}
+
+:focus-visible {
+  outline: 2px solid var(--loxa-ink);
+  outline-offset: 3px;
+}
+
+.dark :focus-visible {
+  outline-color: var(--loxa-signal);
+}
+
+.skipLink {
+  position: fixed;
+  top: 8px;
+  left: 12px;
+  z-index: 100;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 2px solid var(--loxa-ink);
+  border-radius: 6px;
+  background: var(--loxa-signal);
+  color: var(--loxa-ink);
+  font-weight: 600;
+  text-decoration: none;
+  translate: 0 -160%;
+  transition: translate 150ms ease;
+}
+
+.skipLink:focus {
+  translate: 0;
+}
+
+.siteContent {
+  min-height: calc(100dvh - var(--loxa-header-height) - 112px);
+}
+
+#nd-docs-layout {
+  --fd-docs-height: calc(100dvh - var(--loxa-header-height));
+}
+
+#nd-subnav,
+[data-toc-popover] > header {
+  background: var(--loxa-snow) !important;
+  backdrop-filter: none !important;
+}
+
+.dark #nd-subnav,
+.dark [data-toc-popover] > header {
+  background: var(--loxa-ink) !important;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --loxa-header-height: 56px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid CanvasText;
+  }
+}
