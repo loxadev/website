@@ -10,7 +10,7 @@ const actionClass =
 
 export function DocsPageActions({ markdownUrl, githubUrl }: DocsPageActionsProps) {
   return (
-    <div className="loxaDocsPageActions" aria-label="Page actions">
+    <nav className="loxaDocsPageActions" aria-label="Page actions">
       <MarkdownCopyButton className={actionClass} markdownUrl={markdownUrl}>
         Copy Markdown
       </MarkdownCopyButton>
@@ -22,7 +22,7 @@ export function DocsPageActions({ markdownUrl, githubUrl }: DocsPageActionsProps
         <ExternalLinkIcon />
         Edit on GitHub
       </a>
-    </div>
+    </nav>
   );
 }
 

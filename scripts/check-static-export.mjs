@@ -40,6 +40,17 @@ const privatePatterns = [
   },
 ];
 
+const generatedMarkdownPatterns = [
+  ...privatePatterns,
+  { label: 'unsupported performance claim', pattern: /tokens?\s*\/\s*s(?:ec(?:ond)?s?)?|time to first token|\bfastest\b/i },
+  { label: 'unsupported readiness claim', pattern: /production[- ]ready|openai[- ]compatible|anthropic[- ]compatible/i },
+  { label: 'unsupported failover claim', pattern: /cloud.{0,20}(?:failover|fails?\s+over)/i },
+  { label: 'credential-like token', pattern: /\b(?:sk|gh[opurs]|hf)_[A-Za-z0-9_-]{20,}\b/ },
+  { label: 'credential assignment', pattern: /\b(?:CLOUDFLARE_API_TOKEN|CLOUDFLARE_ACCOUNT_ID|GITHUB_TOKEN)\s*[:=]\s*\S+/i },
+];
+
+const maxGeneratedMarkdownBytes = 2 * 1024 * 1024;
+
 const textualExtensions = new Set([
   '.html',
   '.txt',
@@ -231,13 +242,23 @@ function verifyRuntimeArtifacts(files) {
 }
 
 async function verifyPublicText(files, searchPayload) {
+  const isGeneratedMarkdown = (file) => {
+    const path = emittedPath(file);
+    return path === 'llms.txt' || path === 'llms-full.txt' || path.startsWith('llms.mdx/docs/');
+  };
   const textualFiles = files.filter(
-    (file) => textualExtensions.has(extname(file).toLowerCase()) || file === searchPayload,
+    (file) => textualExtensions.has(extname(file).toLowerCase()) || file === searchPayload || isGeneratedMarkdown(file),
   );
 
   for (const file of textualFiles) {
+    const generatedMarkdown = isGeneratedMarkdown(file);
+    if (generatedMarkdown && (await stat(file)).size > maxGeneratedMarkdownBytes) {
+      throw new Error('generated Markdown exceeds size ceiling: ' + displayPath(file));
+    }
+
     const text = await readFile(file, 'utf8');
-    const violation = privatePatterns.find(({ pattern }) => pattern.test(text));
+    const patterns = generatedMarkdown ? generatedMarkdownPatterns : privatePatterns;
+    const violation = patterns.find(({ pattern }) => pattern.test(text));
 
     if (violation) {
       throw new Error(violation.label + ' found in ' + displayPath(file));
