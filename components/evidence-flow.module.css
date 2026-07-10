@@ -116,3 +116,10 @@
     grid-column: 2;
   }
 }
+
+@media (forced-colors: active) {
+  .currentMarker {
+    border: 1px solid CanvasText;
+    background: Highlight;
+  }
+}

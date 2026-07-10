@@ -21,7 +21,11 @@ export function EvidenceFlow() {
 
       <ol className={styles.steps}>
         {steps.map((step, index) => (
-          <li className={styles.step} key={step.command}>
+          <li
+            className={styles.step}
+            key={step.command}
+            aria-current={'current' in step ? 'step' : undefined}
+          >
             <span className={styles.index} aria-hidden="true">
               {String(index + 1).padStart(2, '0')}
             </span>
