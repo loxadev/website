@@ -1,0 +1,118 @@
+.flow {
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid color-mix(in srgb, var(--loxa-glacier) 28%, transparent);
+  border-radius: 8px;
+  background: var(--loxa-ink);
+  color: var(--loxa-snow);
+}
+
+.header {
+  display: flex;
+  padding-bottom: 20px;
+  border-bottom: 1px solid color-mix(in srgb, var(--loxa-glacier) 24%, transparent);
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.header p,
+.header span {
+  margin: 0;
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.header span {
+  color: var(--loxa-glacier);
+  text-align: right;
+}
+
+.steps {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.step {
+  display: grid;
+  min-width: 0;
+  min-height: 80px;
+  border-bottom: 1px solid color-mix(in srgb, var(--loxa-glacier) 18%, transparent);
+  align-items: center;
+  grid-template-columns: 28px minmax(0, 1.2fr) minmax(118px, 0.8fr);
+  gap: 14px;
+}
+
+.step:last-child {
+  border-bottom: 0;
+}
+
+.index,
+.command,
+.annotation {
+  font-family: var(--font-ibm-plex-mono), monospace;
+}
+
+.index {
+  color: color-mix(in srgb, var(--loxa-glacier) 68%, transparent);
+  font-size: 0.6875rem;
+}
+
+.command {
+  min-width: 0;
+  overflow-x: auto;
+  color: var(--loxa-snow);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+  scrollbar-width: thin;
+  white-space: nowrap;
+}
+
+.annotation {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+  color: var(--loxa-glacier);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.currentMarker {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: var(--loxa-signal);
+}
+
+@media (max-width: 520px) {
+  .flow {
+    padding: 20px;
+  }
+
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .header span {
+    text-align: left;
+  }
+
+  .step {
+    min-height: 92px;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 6px 10px;
+  }
+
+  .annotation {
+    grid-column: 2;
+  }
+}
