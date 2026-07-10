@@ -179,7 +179,13 @@ a {
 }
 
 #nd-docs-layout #main-content {
-  max-width: 808px;
+  max-width: 920px;
+}
+
+/* Keep prose comfortably readable while letting code, tables, callouts, and
+   page-level controls use the wider documentation lane. */
+#main-content .loxaDocsBody > :where(p, ul, ol, blockquote, h2, h3, h4, h5, h6) {
+  max-width: 72ch;
 }
 
 #nd-sidebar a,

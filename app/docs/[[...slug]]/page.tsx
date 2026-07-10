@@ -43,11 +43,10 @@ export default async function DocumentationPage({ params }: PageProps) {
       toc={page.data.toc}
       id="main-content"
       role="main"
-      tableOfContentPopover={{ enabled: false }}
     >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
-      <DocsBody>
+      <DocsBody className="loxaDocsBody">
         <MDX components={getMDXComponents()} />
       </DocsBody>
     </DocsPage>
