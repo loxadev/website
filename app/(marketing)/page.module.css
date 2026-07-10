@@ -82,12 +82,12 @@
 }
 
 .primaryAction {
-  background: var(--loxa-signal);
+  background: var(--loxa-accent);
   color: var(--loxa-accent-text);
 }
 
 .primaryAction:hover {
-  background: color-mix(in srgb, var(--loxa-signal) 88%, var(--loxa-snow));
+  background: var(--loxa-accent-hover);
 }
 
 .secondaryAction {
@@ -96,7 +96,7 @@
 }
 
 .secondaryAction:hover {
-  background: color-mix(in srgb, var(--loxa-glacier) 38%, transparent);
+  background: var(--loxa-control-hover);
 }
 
 .capabilities {
@@ -235,11 +235,7 @@
 }
 
 .docsLinks a:hover {
-  background: color-mix(in srgb, var(--loxa-glacier) 30%, transparent);
-}
-
-:global(.dark) .secondaryAction {
-  border-color: var(--loxa-control-border);
+  background: var(--loxa-control-hover);
 }
 
 @media (max-width: 900px) {

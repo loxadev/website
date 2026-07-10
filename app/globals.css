@@ -42,8 +42,12 @@
   --loxa-text-muted: #555c58;
   --loxa-divider: color-mix(in srgb, var(--loxa-mineral) 38%, transparent);
   --loxa-control-border: #69716c;
+  --loxa-control-hover: color-mix(in srgb, var(--loxa-glacier) 38%, var(--loxa-surface));
+  --loxa-control-selected-surface: #69716c;
+  --loxa-control-selected-foreground: #f4f6f0;
   --loxa-accent: var(--loxa-signal);
   --loxa-accent-text: var(--loxa-ink);
+  --loxa-accent-hover: color-mix(in srgb, var(--loxa-signal) 88%, var(--loxa-snow));
   --loxa-subtle-surface: color-mix(in srgb, var(--loxa-glacier) 34%, var(--loxa-snow));
   --loxa-header-height: 64px;
   color-scheme: light;
@@ -79,8 +83,12 @@
   --loxa-text-muted: var(--loxa-glacier);
   --loxa-divider: color-mix(in srgb, var(--loxa-snow) 18%, transparent);
   --loxa-control-border: #c5ddd4;
+  --loxa-control-hover: color-mix(in srgb, var(--loxa-snow) 8%, var(--loxa-surface));
+  --loxa-control-selected-surface: #c5ddd4;
+  --loxa-control-selected-foreground: #101410;
   --loxa-accent: var(--loxa-signal);
   --loxa-accent-text: var(--loxa-ink);
+  --loxa-accent-hover: color-mix(in srgb, var(--loxa-signal) 88%, var(--loxa-surface));
   --loxa-subtle-surface: color-mix(in srgb, var(--loxa-snow) 7%, var(--loxa-ink));
   color-scheme: dark;
 }

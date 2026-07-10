@@ -102,11 +102,18 @@ describe('static documentation platform', () => {
   test('uses the accessible theme contrast and motion contract', async () => {
     const globalStyles = await readText('app/globals.css');
     const headerStyles = await readText('components/site-header.module.css');
+    const marketingStyles = await readText('app/(marketing)/page.module.css');
     const layoutText = await readText('app/layout.tsx');
 
     expect(globalStyles).toContain('--color-fd-muted-foreground: #555c58');
     expect(globalStyles).toContain('--loxa-control-border: #69716c');
     expect(globalStyles).toContain('--loxa-control-border: #c5ddd4');
+    expect(globalStyles).toContain('--loxa-control-selected-surface: #69716c');
+    expect(globalStyles).toContain('--loxa-control-selected-foreground: #f4f6f0');
+    expect(globalStyles).toContain('--loxa-control-selected-surface: #c5ddd4');
+    expect(globalStyles).toContain('--loxa-control-selected-foreground: #101410');
+    expect(globalStyles).toContain('--loxa-control-hover:');
+    expect(globalStyles).toContain('--loxa-accent-hover:');
     expect(globalStyles).toContain('--loxa-surface: var(--loxa-snow)');
     expect(globalStyles).toMatch(
       /\.themeTransition[\s\S]*transition-property:[^;]*color[^;]*background-color[^;]*border-color[^;]*outline-color[^;]*fill[^;]*stroke/,
@@ -118,6 +125,13 @@ describe('static documentation platform', () => {
     expect(globalStyles).not.toMatch(/transition:\s*all\b/);
     expect(headerStyles).toContain('width: 72px');
     expect(headerStyles).toContain('height: 44px');
+    expect(headerStyles).toMatch(
+      /\.themeCell\[data-selected-theme\][\s\S]*background: var\(--loxa-control-selected-surface\)[\s\S]*color: var\(--loxa-control-selected-foreground\)/,
+    );
+    expect(headerStyles).not.toMatch(/:global\(\.dark\) \.primaryAction/);
+    expect(headerStyles).not.toMatch(/:global\(\.dark\) \.searchButton:hover/);
+    expect(marketingStyles).not.toMatch(/color-mix\(in srgb, var\(--loxa-(?:signal|glacier|snow)\)/);
+    expect(marketingStyles).not.toMatch(/:global\(\.dark\) \.secondaryAction/);
     expect(layoutText).not.toContain("'themeTransition'");
   });
 

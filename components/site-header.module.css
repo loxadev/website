@@ -115,11 +115,7 @@
 }
 
 .primaryAction:hover {
-  background: color-mix(in srgb, var(--loxa-signal) 88%, var(--loxa-snow));
-}
-
-:global(.dark) .primaryAction {
-  border-color: var(--loxa-signal);
+  background: var(--loxa-accent-hover);
 }
 
 .controls {
@@ -152,13 +148,7 @@
 .searchButton:hover,
 .themeButton:hover,
 .menuButton:hover {
-  background: color-mix(in srgb, var(--loxa-glacier) 32%, transparent);
-}
-
-:global(.dark) .searchButton:hover,
-:global(.dark) .themeButton:hover,
-:global(.dark) .menuButton:hover {
-  background: color-mix(in srgb, var(--loxa-snow) 8%, transparent);
+  background: var(--loxa-control-hover);
 }
 
 .searchGlyph {
@@ -220,8 +210,8 @@
 }
 
 .themeCell[data-selected-theme] {
-  background: var(--color-fd-accent);
-  color: var(--color-fd-accent-foreground);
+  background: var(--loxa-control-selected-surface);
+  color: var(--loxa-control-selected-foreground);
 }
 
 .menuButton {
