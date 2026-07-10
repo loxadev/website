@@ -39,7 +39,12 @@ export default async function DocumentationPage({ params }: PageProps) {
   const MDX = page.data.body;
 
   return (
-    <DocsPage toc={page.data.toc} id="main-content">
+    <DocsPage
+      toc={page.data.toc}
+      id="main-content"
+      role="main"
+      tableOfContentPopover={{ enabled: false }}
+    >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>

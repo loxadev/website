@@ -1,0 +1,149 @@
+.toolbar {
+  display: none;
+}
+
+.label {
+  min-width: 0;
+  margin-right: auto;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.control {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  padding-inline: 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.control:hover {
+  background: color-mix(in srgb, var(--loxa-glacier) 32%, transparent);
+}
+
+.drawer {
+  position: fixed;
+  inset: var(--loxa-header-height) 0 0 auto;
+  width: min(85vw, 380px);
+  height: calc(100dvh - var(--loxa-header-height));
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-left: 1px solid var(--color-fd-border);
+  background: var(--color-fd-background);
+  color: var(--color-fd-foreground);
+  overscroll-behavior: contain;
+}
+
+.drawer[open] {
+  display: flex;
+}
+
+.drawer::backdrop {
+  background: var(--color-fd-overlay);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.drawerSurface {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.drawerTop {
+  display: flex;
+  min-height: 60px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-fd-border);
+  align-items: center;
+  gap: 12px;
+}
+
+.drawerTop p {
+  margin: 0 auto 0 0;
+  font-weight: 600;
+}
+
+.navigation {
+  min-height: 0;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 4px;
+  list-style: none;
+}
+
+.folder {
+  display: grid;
+  gap: 4px;
+}
+
+.folder .list {
+  padding-left: 12px;
+}
+
+.sectionLabel {
+  margin: 16px 0 4px;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.link {
+  display: flex;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  align-items: center;
+  text-decoration: none;
+}
+
+.link:hover,
+.link[aria-current='page'] {
+  background: var(--color-fd-accent);
+  color: var(--color-fd-accent-foreground);
+}
+
+@media (max-width: 1023px) {
+  .toolbar {
+    position: sticky;
+    top: var(--loxa-header-height);
+    z-index: 30;
+    display: flex;
+    height: 56px;
+    padding-inline: 12px;
+    border-bottom: 1px solid var(--color-fd-border);
+    grid-area: header;
+    align-items: center;
+    gap: 4px;
+    background: var(--color-fd-background);
+  }
+}
+
+@media (forced-colors: active) {
+  .control,
+  .drawer,
+  .link[aria-current='page'] {
+    border-color: CanvasText;
+  }
+}
