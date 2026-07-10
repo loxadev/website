@@ -34,11 +34,44 @@ describe('static documentation platform', () => {
   });
 
   test('uses the approved docs column widths', async () => {
-    const layoutText = await readText('app/docs/layout.tsx');
+    const shellText = await readText('components/docs-shell.tsx');
+    const globalStyles = await readText('app/globals.css');
 
-    expect(layoutText).toContain('DocsLayout');
-    expect(layoutText).toContain("'--fd-sidebar-width': '268px'");
-    expect(layoutText).toContain("'--fd-toc-width': '240px'");
+    expect(shellText).toContain('DocsLayout');
+    expect(shellText).toContain("'--fd-layout-width': '90rem'");
+    expect(shellText).toContain("'--fd-sidebar-width': '268px'");
+    expect(shellText).not.toContain("'--fd-toc-width'");
+    expect(shellText).toContain('slots={{ header: DocsToolbar }}');
+    expect(globalStyles).toContain('@media (min-width: 1280px)');
+    expect(globalStyles).toContain('--fd-toc-width: 240px !important');
+    expect(globalStyles).toContain('#nd-docs-layout [data-sidebar-placeholder]');
+    expect(globalStyles).toContain('#nd-docs-layout #nd-toc');
+    expect(globalStyles).toContain('top: var(--loxa-header-height)');
+    expect(globalStyles).toContain('top: calc(var(--loxa-header-height) + 1rem)');
+  });
+
+  test('uses a single-column docs layout and independent navigation below desktop', async () => {
+    const pageText = await readText('app/docs/[[...slug]]/page.tsx');
+    const globalStyles = await readText('app/globals.css');
+    const toolbarStyles = await readText('components/docs-toolbar.module.css');
+    const headerStyles = await readText('components/site-header.module.css');
+
+    expect(pageText).toContain('role="main"');
+    expect(pageText).toContain('tableOfContentPopover={{ enabled: false }}');
+
+    expect(globalStyles).toContain('@media (max-width: 1023px)');
+    expect(globalStyles).toMatch(/grid-template:\s*\n\s*'header'/);
+    expect(globalStyles).toContain("'main' minmax(0, 1fr) / minmax(0, 1fr) !important");
+    expect(globalStyles).toContain('[data-sidebar-placeholder]');
+    expect(globalStyles).toContain('[data-sidebar-panel]');
+    expect(globalStyles).toContain('max-width: 808px');
+    expect(globalStyles).toContain('min-width: 44px');
+    expect(globalStyles).toContain('min-height: 44px');
+
+    expect(toolbarStyles).toContain('min-width: 44px');
+    expect(toolbarStyles).toContain('min-height: 44px');
+    expect(toolbarStyles).toContain('backdrop-filter: none');
+    expect(headerStyles).toContain('z-index: 40');
   });
 
   test('marks generated discovery routes as static exports', async () => {
