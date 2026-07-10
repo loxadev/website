@@ -228,6 +228,15 @@ a {
   background: var(--loxa-ink) !important;
 }
 
+.loxaDocsPageActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 1.5rem 2rem;
+  padding-block: 0.75rem;
+  border-block: 1px solid var(--color-fd-border);
+}
+
 @media (max-width: 1023px) {
   #nd-docs-layout {
     --fd-header-height: 56px;

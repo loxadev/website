@@ -19,6 +19,13 @@ const documentPaths = [
   'docs/project.html',
   'docs/experimental/supervisor.html',
 ];
+const llmPaths = [
+  'llms.txt',
+  'llms-full.txt',
+  'llms.mdx/docs/index',
+  'llms.mdx/docs/cli',
+  'llms.mdx/docs/experimental/supervisor',
+];
 
 const validSearchPayload = {
   type: 'advanced',
@@ -63,6 +70,12 @@ async function writeStaticFixture(
     const absolutePath = join(outputDirectory, documentPath);
     await mkdir(dirname(absolutePath), { recursive: true });
     await writeFile(absolutePath, '<!doctype html><title>Loxa</title>');
+  }
+
+  for (const llmPath of llmPaths) {
+    const absolutePath = join(outputDirectory, llmPath);
+    await mkdir(dirname(absolutePath), { recursive: true });
+    await writeFile(absolutePath, '# Loxa documentation');
   }
 
   const searchPath = join(outputDirectory, 'api/search');
@@ -171,7 +184,7 @@ describe('CI and static-export contract', () => {
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
       ).resolves.toMatchObject({
-        stdout: expect.stringContaining('9 routes checked'),
+        stdout: expect.stringContaining('14 routes checked'),
       });
 
       const forbiddenBundle = join(

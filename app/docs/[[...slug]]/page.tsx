@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
 
+import { DocsPageActions } from '@/components/docs-page-actions';
+import { githubUrlForPage, markdownUrlForPage } from '@/lib/get-llm-text';
 import { source } from '@/lib/source';
 import { getMDXComponents } from '@/mdx-components';
 
@@ -46,6 +48,10 @@ export default async function DocumentationPage({ params }: PageProps) {
     >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
+      <DocsPageActions
+        githubUrl={githubUrlForPage(page)}
+        markdownUrl={markdownUrlForPage(page)}
+      />
       <DocsBody className="loxaDocsBody">
         <MDX components={getMDXComponents()} />
       </DocsBody>
