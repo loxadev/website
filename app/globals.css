@@ -6,7 +6,7 @@
   --color-fd-background: #f4f6f0;
   --color-fd-foreground: #101410;
   --color-fd-muted: color-mix(in srgb, #c5ddd4 34%, #f4f6f0);
-  --color-fd-muted-foreground: #69716c;
+  --color-fd-muted-foreground: #555c58;
   --color-fd-popover: #f4f6f0;
   --color-fd-popover-foreground: #101410;
   --color-fd-card: color-mix(in srgb, #c5ddd4 20%, #f4f6f0);
@@ -99,6 +99,13 @@ body {
   font-family: var(--font-instrument-sans), sans-serif;
   font-stretch: 100%;
   text-rendering: optimizeLegibility;
+}
+
+.themeTransition,
+.themeTransition *:where(:not(svg *)) {
+  transition-property: color, background-color, border-color, outline-color, fill, stroke;
+  transition-duration: 190ms;
+  transition-timing-function: ease;
 }
 
 .dark body {
@@ -254,6 +261,11 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .themeTransition,
+  .themeTransition *:where(:not(svg *)) {
+    transition-duration: 0.01ms !important;
+  }
+
   *,
   *::before,
   *::after {

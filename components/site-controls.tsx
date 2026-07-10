@@ -51,9 +51,20 @@ export function SiteControls() {
         className={styles.themeButton}
         type="button"
         aria-label={themeLabel}
+        aria-pressed={dark}
         onClick={() => setTheme(dark ? 'light' : 'dark')}
       >
-        <span aria-hidden="true">{dark ? 'Light' : 'Dark'}</span>
+        <span className={`${styles.themeCell} ${styles.sunCell}`} aria-hidden="true">
+          <svg data-theme-icon viewBox="0 0 24 24" focusable="false">
+            <circle cx="12" cy="12" r="3.25" />
+            <path d="M12 2.75v2M12 19.25v2M2.75 12h2M19.25 12h2M5.46 5.46l1.42 1.42M17.12 17.12l1.42 1.42M18.54 5.46l-1.42 1.42M6.88 17.12l-1.42 1.42" />
+          </svg>
+        </span>
+        <span className={`${styles.themeCell} ${styles.moonCell}`} aria-hidden="true">
+          <svg data-theme-icon viewBox="0 0 24 24" focusable="false">
+            <path d="M20.1 15.25A8.5 8.5 0 0 1 8.75 3.9a8.5 8.5 0 1 0 11.35 11.35Z" />
+          </svg>
+        </span>
       </button>
 
       <button
