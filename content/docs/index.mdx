@@ -1,0 +1,33 @@
+---
+title: Loxa documentation
+description: Reference for the early-development Loxa CLI and project status.
+---
+
+Loxa is in **Early development** at `0.1.0-dev`. This documentation describes the
+public source as it exists today, not a published release.
+
+The current main branch includes four CLI commands:
+
+- `loxa doctor` inspects the current machine.
+- `loxa list` lists locally managed model files.
+- `loxa pull <id>` downloads a model from the built-in registry.
+- `loxa rm <id>` removes a managed model file.
+
+There is no published install path yet. Follow the [Project](/docs/project) page for
+status and scope rather than treating source-only commands as a release.
+
+## Reference
+
+- [Doctor](/docs/doctor) describes the machine observations the command reports.
+- [Models](/docs/models) covers registry IDs, downloads, verification, and removal.
+- [CLI reference](/docs/cli) documents the commands in the current main branch.
+- [Troubleshooting](/docs/troubleshooting) maps known errors to the relevant checks.
+- [Project](/docs/project) records version, license, and release status.
+
+## Experimental
+
+[Experimental work](/docs/experimental/supervisor) is labeled separately and is not
+part of the current main branch or a tagged release.
+
+The [public source](https://github.com/loxadev/loxa) is available under the
+[Apache License 2.0](https://github.com/loxadev/loxa/blob/main/LICENSE).
