@@ -24,6 +24,14 @@ const packageJson = JSON.parse(await readText('package.json')) as {
   packageManager: string;
   engines: { node: string };
 };
+const tsConfig = JSON.parse(await readText('tsconfig.json')) as {
+  compilerOptions: {
+    incremental?: boolean;
+    tsBuildInfoFile?: string;
+  };
+  include?: string[];
+};
+const nextEnvironmentTypes = await readText('next-env.d.ts');
 const nextConfigText = await readText('next.config.mjs');
 const sourceConfigText = await readText('source.config.ts');
 const brandDirectory = join(repositoryRoot, 'public/brand');
@@ -43,6 +51,16 @@ describe('deterministic static platform', () => {
   test('enables a portable static export', () => {
     expect(nextConfigText).toContain("output: 'export'");
     expect(nextConfigText).toContain('unoptimized: true');
+  });
+
+  test('commits the Next TypeScript baseline without leaking incremental state', () => {
+    expect(nextEnvironmentTypes).toContain('/// <reference types="next" />');
+    expect(nextEnvironmentTypes).toContain('import "./.next/types/routes.d.ts";');
+    expect(tsConfig.include).toContain('.next/dev/types/**/*.ts');
+    expect(tsConfig.compilerOptions.incremental).toBe(true);
+    expect(tsConfig.compilerOptions.tsBuildInfoFile).toBe(
+      '.next/cache/tsconfig.tsbuildinfo',
+    );
   });
 
   test('reads documentation from the canonical content directory', () => {

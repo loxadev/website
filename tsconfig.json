@@ -16,14 +16,17 @@
     "paths": {
       "@/*": ["./*"],
       "collections/*": ["./.source/*"]
-    }
+    },
+    "incremental": true,
+    "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo"
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".source/**/*.ts"
+    ".source/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
