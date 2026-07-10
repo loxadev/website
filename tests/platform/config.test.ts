@@ -33,6 +33,7 @@ const tsConfig = JSON.parse(await readText('tsconfig.json')) as {
 };
 const nextEnvironmentTypes = await readText('next-env.d.ts');
 const nextConfigText = await readText('next.config.mjs');
+const rootLayoutText = await readText('app/layout.tsx');
 const sourceConfigText = await readText('source.config.ts');
 const gitAttributes = await readText('.gitattributes');
 const brandDirectory = join(repositoryRoot, 'public/brand');
@@ -52,6 +53,10 @@ describe('deterministic static platform', () => {
   test('enables a portable static export', () => {
     expect(nextConfigText).toContain("output: 'export'");
     expect(nextConfigText).toContain('unoptimized: true');
+  });
+
+  test('declares smooth scrolling to Next.js on the root element', () => {
+    expect(rootLayoutText).toContain('data-scroll-behavior="smooth"');
   });
 
   test('commits the Next TypeScript baseline without leaking incremental state', () => {
