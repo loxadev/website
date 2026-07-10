@@ -99,6 +99,7 @@ describe('static documentation platform', () => {
   test('uses the accessible theme contrast and motion contract', async () => {
     const globalStyles = await readText('app/globals.css');
     const headerStyles = await readText('components/site-header.module.css');
+    const layoutText = await readText('app/layout.tsx');
 
     expect(globalStyles).toContain('--color-fd-muted-foreground: #555c58');
     expect(globalStyles).toMatch(
@@ -111,6 +112,7 @@ describe('static documentation platform', () => {
     expect(globalStyles).not.toMatch(/transition:\s*all\b/);
     expect(headerStyles).toContain('width: 72px');
     expect(headerStyles).toContain('height: 44px');
+    expect(layoutText).not.toContain("'themeTransition'");
   });
 
   test('marks generated discovery routes as static exports', async () => {

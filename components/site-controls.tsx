@@ -14,6 +14,7 @@ export function SiteControls() {
   const { resolvedTheme, setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const themeTransitionTimerRef = useRef<number | null>(null);
   const dark = resolvedTheme === 'dark';
 
   useEffect(() => {
@@ -28,6 +29,33 @@ export function SiteControls() {
     window.addEventListener('keydown', closeOnEscape);
     return () => window.removeEventListener('keydown', closeOnEscape);
   }, [menuOpen]);
+
+  useEffect(
+    () => () => {
+      if (themeTransitionTimerRef.current !== null) {
+        window.clearTimeout(themeTransitionTimerRef.current);
+      }
+      document.documentElement.classList.remove('themeTransition');
+    },
+    [],
+  );
+
+  function toggleTheme() {
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+    if (!reducedMotion) {
+      document.documentElement.classList.add('themeTransition');
+      if (themeTransitionTimerRef.current !== null) {
+        window.clearTimeout(themeTransitionTimerRef.current);
+      }
+      themeTransitionTimerRef.current = window.setTimeout(() => {
+        document.documentElement.classList.remove('themeTransition');
+        themeTransitionTimerRef.current = null;
+      }, 190);
+    }
+
+    setTheme(dark ? 'light' : 'dark');
+  }
 
   const themeLabel = dark ? 'Switch to light theme' : 'Switch to dark theme';
   const menuLabel = menuOpen ? 'Close navigation' : 'Open navigation';
@@ -52,7 +80,7 @@ export function SiteControls() {
         type="button"
         aria-label={themeLabel}
         aria-pressed={dark}
-        onClick={() => setTheme(dark ? 'light' : 'dark')}
+        onClick={toggleTheme}
       >
         <span className={`${styles.themeCell} ${styles.sunCell}`} aria-hidden="true">
           <svg data-theme-icon viewBox="0 0 24 24" focusable="false">
