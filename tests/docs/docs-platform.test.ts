@@ -44,6 +44,8 @@ describe('static documentation platform', () => {
     expect(shellText).toContain('slots={{ header: DocsToolbar }}');
     expect(globalStyles).toContain('@media (min-width: 1280px)');
     expect(globalStyles).toContain('--fd-toc-width: 240px !important');
+    expect(globalStyles).toContain('max-width: 920px');
+    expect(globalStyles).toContain('max-width: 72ch');
     expect(globalStyles).toContain('#nd-docs-layout [data-sidebar-placeholder]');
     expect(globalStyles).toContain('#nd-docs-layout #nd-toc');
     expect(globalStyles).toContain('top: var(--loxa-header-height)');
@@ -57,14 +59,15 @@ describe('static documentation platform', () => {
     const headerStyles = await readText('components/site-header.module.css');
 
     expect(pageText).toContain('role="main"');
-    expect(pageText).toContain('tableOfContentPopover={{ enabled: false }}');
+    expect(pageText).not.toContain('tableOfContentPopover={{ enabled: false }}');
+    expect(pageText).toContain('className="loxaDocsBody"');
 
     expect(globalStyles).toContain('@media (max-width: 1023px)');
     expect(globalStyles).toMatch(/grid-template:\s*\n\s*'header'/);
     expect(globalStyles).toContain("'main' minmax(0, 1fr) / minmax(0, 1fr) !important");
     expect(globalStyles).toContain('[data-sidebar-placeholder]');
     expect(globalStyles).toContain('[data-sidebar-panel]');
-    expect(globalStyles).toContain('max-width: 808px');
+    expect(globalStyles).toContain('max-width: 920px');
 
     expect(toolbarStyles).toContain('min-width: 44px');
     expect(toolbarStyles).toContain('min-height: 44px');
