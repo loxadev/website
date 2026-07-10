@@ -88,6 +88,14 @@ describe('static documentation platform', () => {
     );
   });
 
+  test('aligns code block copy controls with the top edge', async () => {
+    const globalStyles = await readText('app/globals.css');
+
+    expect(globalStyles).toMatch(
+      /#main-content figure > \.backdrop-blur-lg\s*\{\s*top: 4px;/,
+    );
+  });
+
   test('marks generated discovery routes as static exports', async () => {
     const robotsText = await readText('app/robots.ts');
     const sitemapText = await readText('app/sitemap.ts');

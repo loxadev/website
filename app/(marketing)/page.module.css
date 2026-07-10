@@ -130,12 +130,12 @@
 
 .narrativeRow {
   display: grid;
-  min-height: 296px;
-  padding-block: 64px;
+  min-height: 240px;
+  padding-block: 48px;
   border-bottom: 1px solid color-mix(in srgb, var(--loxa-mineral) 38%, transparent);
   align-items: start;
-  grid-template-columns: minmax(160px, 0.6fr) minmax(0, 1.4fr);
-  gap: clamp(32px, 8vw, 112px);
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 64px);
 }
 
 .narrativeNumber {
@@ -143,16 +143,7 @@
 }
 
 .narrativeCopy {
-  max-width: 720px;
-}
-
-.narrativeRow:nth-child(even) .narrativeNumber {
-  grid-column: 2;
-}
-
-.narrativeRow:nth-child(even) .narrativeCopy {
-  grid-row: 1;
-  grid-column: 1;
+  max-width: 900px;
 }
 
 .narrativeCopy h3 {
@@ -331,18 +322,11 @@
     margin-top: 56px;
   }
 
-  .narrativeRow,
-  .narrativeRow:nth-child(even) {
+  .narrativeRow {
     min-height: auto;
     padding-block: 48px;
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
-  }
-
-  .narrativeRow:nth-child(even) .narrativeNumber,
-  .narrativeRow:nth-child(even) .narrativeCopy {
-    grid-row: auto;
-    grid-column: auto;
   }
 
   .statusBand {
