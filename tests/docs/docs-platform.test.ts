@@ -105,6 +105,9 @@ describe('static documentation platform', () => {
     const layoutText = await readText('app/layout.tsx');
 
     expect(globalStyles).toContain('--color-fd-muted-foreground: #555c58');
+    expect(globalStyles).toContain('--loxa-control-border: #69716c');
+    expect(globalStyles).toContain('--loxa-control-border: #c5ddd4');
+    expect(globalStyles).toContain('--loxa-surface: var(--loxa-snow)');
     expect(globalStyles).toMatch(
       /\.themeTransition[\s\S]*transition-property:[^;]*color[^;]*background-color[^;]*border-color[^;]*outline-color[^;]*fill[^;]*stroke/,
     );
@@ -129,6 +132,7 @@ describe('static documentation platform', () => {
   test('offers copy, view, and GitHub edit actions for processed Markdown', async () => {
     const pageText = await readText('app/docs/[[...slug]]/page.tsx');
     const actionsText = await readText('components/docs-page-actions.tsx');
+    const globalStyles = await readText('app/globals.css');
 
     expect(pageText).toContain('DocsPageActions');
     expect(actionsText).toContain('MarkdownCopyButton');
@@ -136,7 +140,11 @@ describe('static documentation platform', () => {
     expect(actionsText).toContain('View Markdown');
     expect(actionsText).toContain('Edit on GitHub');
     expect(actionsText).toContain('min-h-11');
+    expect(actionsText).toContain('border-[var(--loxa-control-border)]');
     expect(actionsText).toContain('<nav');
     expect(actionsText).toContain('aria-label="Page actions"');
+    expect(globalStyles).toMatch(
+      /@media \(max-width: 420px\)[\s\S]*\.loxaDocsPageActions > \*[\s\S]*width: 100%/,
+    );
   });
 });

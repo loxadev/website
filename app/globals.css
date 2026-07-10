@@ -37,6 +37,14 @@
   --loxa-mineral: #69716c;
   --loxa-glacier: #c5ddd4;
   --loxa-signal: #b7ed62;
+  --loxa-surface: var(--loxa-snow);
+  --loxa-text: var(--loxa-ink);
+  --loxa-text-muted: #555c58;
+  --loxa-divider: color-mix(in srgb, var(--loxa-mineral) 38%, transparent);
+  --loxa-control-border: #69716c;
+  --loxa-accent: var(--loxa-signal);
+  --loxa-accent-text: var(--loxa-ink);
+  --loxa-subtle-surface: color-mix(in srgb, var(--loxa-glacier) 34%, var(--loxa-snow));
   --loxa-header-height: 64px;
   color-scheme: light;
 }
@@ -66,6 +74,14 @@
   --color-fd-idea: #c5ddd4;
   --color-fd-diff-remove-symbol: #c5ddd4;
   --color-fd-diff-add-symbol: #b7ed62;
+  --loxa-surface: var(--loxa-ink);
+  --loxa-text: var(--loxa-snow);
+  --loxa-text-muted: var(--loxa-glacier);
+  --loxa-divider: color-mix(in srgb, var(--loxa-snow) 18%, transparent);
+  --loxa-control-border: #c5ddd4;
+  --loxa-accent: var(--loxa-signal);
+  --loxa-accent-text: var(--loxa-ink);
+  --loxa-subtle-surface: color-mix(in srgb, var(--loxa-snow) 7%, var(--loxa-ink));
   color-scheme: dark;
 }
 
@@ -84,7 +100,7 @@
 html {
   min-width: 320px;
   scroll-behavior: smooth;
-  background: var(--loxa-snow);
+  background: var(--loxa-surface);
 }
 
 html.dark {
@@ -94,8 +110,8 @@ html.dark {
 body {
   min-height: 100dvh;
   margin: 0;
-  background: var(--loxa-snow);
-  color: var(--loxa-ink);
+  background: var(--loxa-surface);
+  color: var(--loxa-text);
   font-family: var(--font-instrument-sans), sans-serif;
   font-stretch: 100%;
   text-rendering: optimizeLegibility;
@@ -235,6 +251,13 @@ a {
   margin-block: 1.5rem 2rem;
   padding-block: 0.75rem;
   border-block: 1px solid var(--color-fd-border);
+}
+
+@media (max-width: 420px) {
+  .loxaDocsPageActions > * {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 1023px) {

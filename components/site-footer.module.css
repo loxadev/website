@@ -1,13 +1,7 @@
 .footer {
-  border-top: 1px solid color-mix(in srgb, var(--loxa-mineral) 38%, transparent);
-  background: var(--loxa-snow);
-  color: var(--loxa-ink);
-}
-
-:global(.dark) .footer {
-  border-top-color: color-mix(in srgb, var(--loxa-snow) 18%, transparent);
-  background: var(--loxa-ink);
-  color: var(--loxa-snow);
+  border-top: 1px solid var(--loxa-divider);
+  background: var(--loxa-surface);
+  color: var(--loxa-text);
 }
 
 .inner {
@@ -37,13 +31,9 @@
 
 .status {
   margin: 0;
-  color: var(--loxa-mineral);
+  color: var(--loxa-text-muted);
   font-family: var(--font-ibm-plex-mono), monospace;
   font-size: 0.75rem;
-}
-
-:global(.dark) .status {
-  color: var(--loxa-glacier);
 }
 
 .navigation {
