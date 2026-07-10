@@ -1,7 +1,13 @@
+import { readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import MarketingPage from '@/app/(marketing)/page';
+
+const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 describe('MarketingPage', () => {
   it('presents the current public Loxa workflow without unverified claims', () => {
@@ -46,5 +52,17 @@ describe('MarketingPage', () => {
         image.hasAttribute('aria-label') || image.hasAttribute('aria-labelledby'),
       ).toBe(true);
     }
+  });
+
+  it('keeps capability numbers beside their content without empty alternating columns', async () => {
+    const styles = await readFile(
+      join(repositoryRoot, 'app/(marketing)/page.module.css'),
+      'utf8',
+    );
+
+    expect(styles).toContain(
+      'grid-template-columns: 64px minmax(0, 1fr);',
+    );
+    expect(styles).not.toContain('.narrativeRow:nth-child(even)');
   });
 });

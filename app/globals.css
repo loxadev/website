@@ -197,6 +197,10 @@ a {
   backdrop-filter: none !important;
 }
 
+#main-content figure > .backdrop-blur-lg {
+  top: 4px;
+}
+
 #nd-subnav,
 [data-toc-popover] > header {
   background: var(--loxa-snow) !important;
