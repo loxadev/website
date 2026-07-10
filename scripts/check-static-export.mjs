@@ -46,7 +46,7 @@ const generatedMarkdownPatterns = [
   { label: 'unsupported readiness claim', pattern: /production[- ]ready|openai[- ]compatible|anthropic[- ]compatible/i },
   { label: 'unsupported failover claim', pattern: /cloud.{0,20}(?:failover|fails?\s+over)/i },
   { label: 'credential-like token', pattern: /\b(?:sk|gh[opurs]|hf)_[A-Za-z0-9_-]{20,}\b/ },
-  { label: 'credential assignment', pattern: /\b(?:CLOUDFLARE_API_TOKEN|CLOUDFLARE_ACCOUNT_ID|GITHUB_TOKEN)\s*[:=]\s*\S+/i },
+  { label: 'credential assignment', pattern: /\b(?:CLOUDFLARE_API_TOKEN|GITHUB_TOKEN)\s*[:=]\s*["']?[A-Za-z0-9_-]{20,}/i },
 ];
 
 const maxGeneratedMarkdownBytes = 2 * 1024 * 1024;

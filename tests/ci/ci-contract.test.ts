@@ -254,6 +254,7 @@ describe('CI and static-export contract', () => {
   test.each([
     ['unsupported readiness claim', 'This is production-ready.'],
     ['credential-like token', 'ghp_123456789012345678901234567890'],
+    ['credential assignment', 'CLOUDFLARE_API_TOKEN=0123456789abcdef0123456789abcdef'],
   ])('rejects unsafe generated Markdown (%s)', async (label, canary) => {
     const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
 
@@ -269,10 +270,43 @@ describe('CI and static-export contract', () => {
     }
   });
 
-  test('caps the size of each generated Markdown artifact', () => {
-    expect(staticCheck).toContain('maxGeneratedMarkdownBytes');
-    expect(staticCheck).toContain('generated Markdown exceeds size ceiling');
-    expect(staticCheck).toContain("path.startsWith('llms.mdx/docs/')");
+  test('allows obvious credential placeholders in generated Markdown', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      await writeFile(
+        join(fixtureDirectory, 'out/llms.mdx/docs/cli'),
+        'CLOUDFLARE_API_TOKEN=<YOUR_TOKEN>\nGITHUB_TOKEN=changeme\nCLOUDFLARE_ACCOUNT_ID=2aaca0cce1c18a7c4cb517ae9b3a1185',
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('14 routes checked') });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
+  test('rejects a generated Markdown artifact larger than 2 MiB', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      await writeFile(
+        join(fixtureDirectory, 'out/llms.mdx/docs/cli'),
+        'x'.repeat(2 * 1024 * 1024 + 1),
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining('generated Markdown exceeds size ceiling'),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
   });
 
   test('rejects an empty advanced Orama payload', async () => {
