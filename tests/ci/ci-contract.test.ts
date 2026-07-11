@@ -67,6 +67,12 @@ async function writeStaticFixture(
 ): Promise<void> {
   const outputDirectory = join(fixtureDirectory, 'out');
 
+  await mkdir(outputDirectory, { recursive: true });
+  await writeFile(
+    join(outputDirectory, '_headers'),
+    '/llms.mdx/docs/*\n  Content-Type: text/markdown; charset=utf-8\n  Content-Disposition: inline\n',
+  );
+
   for (const documentPath of documentPaths) {
     const absolutePath = join(outputDirectory, documentPath);
     await mkdir(dirname(absolutePath), { recursive: true });

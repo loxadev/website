@@ -226,6 +226,27 @@ async function requireSearchPayload() {
   );
 }
 
+async function requireMarkdownHeaders() {
+  const headersPath = join(outputDirectory, '_headers');
+
+  if (!(await isFile(headersPath))) {
+    throw new Error('missing Cloudflare Markdown header rules: out/_headers');
+  }
+
+  const headers = await readFile(headersPath, 'utf8');
+  const required = [
+    '/llms.mdx/docs/*',
+    'Content-Type: text/markdown; charset=utf-8',
+    'Content-Disposition: inline',
+  ];
+
+  for (const line of required) {
+    if (!headers.includes(line)) {
+      throw new Error('missing Cloudflare Markdown header rule: ' + line);
+    }
+  }
+}
+
 function verifyRuntimeArtifacts(files) {
   for (const file of files) {
     const path = emittedPath(file);
@@ -275,6 +296,7 @@ async function main() {
 
   await Promise.all(documentRoutes.map(requireDocument));
   await Promise.all(llmRoutes.map(requireDocument));
+  await requireMarkdownHeaders();
   const searchPayload = await requireSearchPayload();
   const emittedFiles = await collectFiles(outputDirectory);
 

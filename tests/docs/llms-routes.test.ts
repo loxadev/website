@@ -42,4 +42,12 @@ describe('AI-readable documentation routes', () => {
     expect(helper).toContain('/edit/main/');
     expect(helper).not.toMatch(/process\.env|readFile|internal-context|\.superpowers/);
   });
+
+  test('serves extensionless Markdown inline on Cloudflare Pages', async () => {
+    const headers = await read('public/_headers');
+
+    expect(headers).toContain('/llms.mdx/docs/*');
+    expect(headers).toContain('Content-Type: text/markdown; charset=utf-8');
+    expect(headers).toContain('Content-Disposition: inline');
+  });
 });
