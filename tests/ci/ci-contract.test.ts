@@ -54,10 +54,11 @@ async function readText(relativePath: string): Promise<string> {
   }
 }
 
-const [workflow, staticCheck, readme] = await Promise.all([
+const [workflow, staticCheck, readme, pnpmWorkspace] = await Promise.all([
   readText('.github/workflows/ci.yml'),
   readText('scripts/check-static-export.mjs'),
   readText('README.md'),
+  readText('pnpm-workspace.yaml'),
 ]);
 
 async function writeStaticFixture(
@@ -84,6 +85,14 @@ async function writeStaticFixture(
 }
 
 describe('CI and static-export contract', () => {
+  test('allows only reviewed dependency build scripts', () => {
+    expect(pnpmWorkspace).toContain('allowBuilds:');
+    expect(pnpmWorkspace).toContain("'esbuild@0.28.1': true");
+    expect(pnpmWorkspace).toContain("'sharp@0.34.5': true");
+    expect(pnpmWorkspace).toContain("'unrs-resolver@1.12.2': true");
+    expect(pnpmWorkspace).not.toContain('dangerouslyAllowAllBuilds');
+  });
+
   test('runs the full check pipeline in order with read-only permissions', () => {
     expect(workflow).toContain('permissions:');
     expect(workflow).toContain('contents: read');
