@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { InstallCommandTabs } from '@/components/install-command-tabs';
+import { INSTALLERS } from '@/lib/installer-catalog';
 import { siteConfig } from '@/lib/site';
 
 import styles from './page.module.css';
@@ -13,7 +15,6 @@ const productDirections = [
 ] as const;
 
 const docsLinks = [
-  { href: '/docs/install', label: 'Install status' },
   { href: '/docs/project', label: 'Project status' },
   { href: '/docs/cli', label: 'Source CLI reference' },
 ] as const;
@@ -45,14 +46,27 @@ export default function MarketingPage() {
         </div>
       </section>
 
+      <section className={styles.installer} aria-labelledby="installer-title">
+        <div className={styles.installerCopy}>
+          <p className={styles.sectionLabel}>Still in development</p>
+          <h2 id="installer-title">Install Loxa with your favorite package manager.</h2>
+          <p>
+            Installation channels are being verified one at a time. Available commands
+            appear here only after their release artifacts pass clean-machine testing.
+          </p>
+        </div>
+        <InstallCommandTabs installers={INSTALLERS} />
+      </section>
+
       <section className={styles.problem} aria-labelledby="problem-title">
         <div>
           <p className={styles.sectionLabel}>Why Loxa</p>
-          <h2 id="problem-title">
-            Getting the first response from an open model is easy. Keeping the whole
-            setup usable means choosing a compatible model and runtime, managing
-            processes and ports, reconnecting clients, and handling failures.
-          </h2>
+          <h2 id="problem-title">Running an open model is easy. Keeping it reliable is not.</h2>
+          <p className={styles.problemContext}>
+            Choosing a compatible model and runtime, managing processes and ports,
+            reconnecting clients, and handling failures turns a quick local setup into
+            ongoing operational work.
+          </p>
         </div>
         <p className={styles.problemFocus}>
           Loxa is being built to manage the node around the model, not to become
@@ -91,27 +105,6 @@ export default function MarketingPage() {
         </ol>
       </section>
 
-      <section className={styles.installBand} aria-labelledby="install-title">
-        <div>
-          <p className={styles.sectionLabel}>Still in development</p>
-          <h2 id="install-title">Install with your favorite package manager.</h2>
-        </div>
-        <div className={styles.installCopy}>
-          <p>
-            Installation is still in development. See the installation documentation for
-            current status and planned package-manager support.
-          </p>
-          <div className={styles.actions}>
-            <Link className={styles.primaryAction} href="/docs/install">
-              View installation status
-            </Link>
-            <a className={styles.secondaryAction} href={siteConfig.sourceUrl}>
-              View source
-            </a>
-          </div>
-        </div>
-      </section>
-
       <section className={styles.sourceBand} aria-labelledby="source-title">
         <h2 id="source-title">Built in public.</h2>
         <p>
@@ -128,6 +121,10 @@ export default function MarketingPage() {
           <h2 id="docs-title">Follow the project as it develops.</h2>
         </div>
         <nav className={styles.docsLinks} aria-label="Documentation entry points">
+          <Link href="/docs/install">
+            Install status
+            <span aria-hidden="true">→</span>
+          </Link>
           {docsLinks.map((link) => (
             <Link href={link.href} key={link.href}>
               {link.label}

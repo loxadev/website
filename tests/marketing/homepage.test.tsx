@@ -37,8 +37,24 @@ describe('MarketingPage', () => {
     }
 
     expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Install Loxa with your favorite package manager.',
+      }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole('tablist', { name: 'Installation methods' }),
+    ).toBeVisible();
+    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Running an open model is easy. Keeping it reliable is not.',
+      }),
+    ).toBeVisible();
+    expect(
       screen.getByText(
-        'Getting the first response from an open model is easy. Keeping the whole setup usable means choosing a compatible model and runtime, managing processes and ports, reconnecting clients, and handling failures.',
+        'Choosing a compatible model and runtime, managing processes and ports, reconnecting clients, and handling failures turns a quick local setup into ongoing operational work.',
       ),
     ).toBeVisible();
     expect(
@@ -54,24 +70,17 @@ describe('MarketingPage', () => {
     ).toBeVisible();
     expect(screen.getByText('0.1.0-dev')).toBeVisible();
 
-    expect(
-      screen.getByRole('heading', {
-        level: 2,
-        name: 'Install with your favorite package manager.',
-      }),
-    ).toBeVisible();
-    expect(screen.getByRole('link', { name: 'View installation status' })).toHaveAttribute(
-      'href',
-      '/docs/install',
-    );
-
     expect(screen.queryByText(/what works today/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/current source behavior/i)).not.toBeInTheDocument();
     expect(
       screen.queryByRole('region', { name: /current loxa workflow/i }),
     ).not.toBeInTheDocument();
     expect(container).not.toHaveTextContent(/\bloxa (?:doctor|list|pull|run|ps|stop)\b/i);
-    expect(container).not.toHaveTextContent(/\b(?:bash|npm|cargo|pip|uv|homebrew)\b/i);
+    expect(screen.queryByRole('button', { name: /copy .* command/i })).not.toBeInTheDocument();
+
+    const sections = Array.from(container.querySelectorAll('main > section'));
+    expect(sections[1]).toHaveAttribute('aria-labelledby', 'installer-title');
+    expect(sections[2]).toHaveAttribute('aria-labelledby', 'problem-title');
   });
 
   it('keeps homepage actions large enough for keyboard and touch use', async () => {

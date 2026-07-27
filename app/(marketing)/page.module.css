@@ -5,9 +5,9 @@
 }
 
 .hero,
+.installer,
 .problem,
 .direction,
-.installBand,
 .sourceBand,
 .docsEntry {
   width: min(100%, 1280px);
@@ -97,8 +97,19 @@
   background: var(--loxa-control-hover);
 }
 
-.problem,
-.installBand {
+.installer {
+  display: grid;
+  padding-block: 80px;
+  border-top: 1px solid var(--loxa-divider);
+  gap: 40px;
+}
+
+.installerCopy,
+.installer > :last-child {
+  max-width: 850px;
+}
+
+.problem {
   display: grid;
   padding-block: 112px;
   border-top: 1px solid var(--loxa-divider);
@@ -112,9 +123,9 @@
   color: var(--loxa-text-muted);
 }
 
+.installerCopy h2,
 .problem h2,
 .sectionIntro h2,
-.installBand h2,
 .sourceBand h2,
 .docsEntry h2 {
   margin: 0;
@@ -125,13 +136,19 @@
   text-wrap: balance;
 }
 
-.problemFocus,
-.installCopy > p {
+.installerCopy > p,
+.problemContext,
+.problemFocus {
   max-width: 720px;
   margin: 0;
   color: var(--loxa-text-muted);
   font-size: clamp(1.125rem, 2vw, 1.375rem);
   line-height: 1.55;
+}
+
+.installerCopy > p,
+.problemContext {
+  margin-top: 24px;
 }
 
 .statusBand {
@@ -195,14 +212,6 @@
   line-height: 1.2;
 }
 
-.installCopy {
-  max-width: 720px;
-}
-
-.installCopy .actions {
-  margin-top: 32px;
-}
-
 .sourceBand {
   display: grid;
   padding-block: 112px;
@@ -257,7 +266,6 @@
 
 @media (max-width: 900px) {
   .problem,
-  .installBand,
   .sourceBand,
   .docsEntry {
     grid-template-columns: minmax(0, 1fr);
@@ -270,18 +278,18 @@
 
 @media (max-width: 640px) {
   .hero,
+  .installer,
   .problem,
   .direction,
-  .installBand,
   .sourceBand,
   .docsEntry {
     padding-inline: 20px;
   }
 
   .hero,
+  .installer,
   .problem,
   .direction,
-  .installBand,
   .sourceBand,
   .docsEntry {
     padding-block: 80px;
@@ -294,6 +302,10 @@
 
   .lede {
     margin-top: 24px;
+  }
+
+  .installer {
+    gap: 32px;
   }
 
   .actions {
