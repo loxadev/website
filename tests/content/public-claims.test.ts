@@ -22,15 +22,37 @@ const forbidden = [
   /cloud.{0,20}fails?\s+over/i,
   /fails?\s+over.{0,20}(?:to\s+)?(?:the\s+)?cloud/i,
   /no orphan processes/i,
-  /cargo install loxa/i,
-  /brew install/i,
-  /curl.{0,40}loxa/i,
+  /\bcurl\b[^\n]{0,120}\|\s*(?:ba)?sh\b/i,
+  /\bnpm\s+(?:install|i|exec)\s+(?:-g\s+)?loxa\b/i,
+  /\bnpx\s+loxa\b/i,
+  /\bcargo\s+install\s+loxa\b/i,
+  /\bpip(?:3)?\s+install\s+loxa\b/i,
+  /\buv\s+(?:tool\s+install|add)\s+loxa\b/i,
+  /\bbrew\s+install(?:\s+[^.\n]+)?\b/i,
+  /(?:private|internal)\s+(?:repository|repo)\b/i,
+  /\b\d+\s+(?:users?|customers?|pilots?)\b/i,
+  /\b(?:has|serves?)\s+(?:\d+\s+)?(?:users?|customers?|pilots?)\b/i,
+  /\b(?:generates?|reports?|has)\s+(?:\$\s*)?\d[\d,]*(?:\.\d+)?(?:[kmb])?\s+(?:in\s+)?revenue\b/i,
+  /\b(?:mrr|arr)\s*(?:is|of|:|\$|\d)/i,
+  /\bretention\s+(?:is|of|at|:)\s*\d/i,
+  /\b(?:has|runs?)\s+(?:\d+\s+)?enterprise deployments?\b/i,
   /\/v1\/chat\/completions/i,
   /—/,
   /\/Users\/[^/\s]+(?:\/[^\s"'<>]*)?/i,
   /(?:^|[^A-Za-z0-9])(?:private|internal)[-_ ]?context(?:[/\\]|$)/i,
   /(?:^|[^A-Za-z0-9])\.superpowers(?:[/\\]|$)/i,
 ];
+
+const candidatePackageName = ['lo', 'xa'].join('');
+const unsupportedInstallerExamples = [
+  ['curl', '-fsSL', 'https://example.invalid/installer', '|', 'bash'],
+  ['npm', 'install', '-g', candidatePackageName],
+  ['npx', candidatePackageName],
+  ['cargo', 'install', candidatePackageName],
+  ['pip', 'install', candidatePackageName],
+  ['uv', 'tool', 'install', candidatePackageName],
+  ['brew', 'install', candidatePackageName],
+].map((tokens) => tokens.join(' '));
 
 type PublicTextFile = {
   path: string;
@@ -41,6 +63,7 @@ const groups: Array<{ directory: string; extensions: ReadonlySet<string> }> = [
   { directory: 'app', extensions: new Set(['.ts', '.tsx']) },
   { directory: 'components', extensions: new Set(['.ts', '.tsx']) },
   { directory: 'content', extensions: new Set(['.md', '.mdx', '.json']) },
+  { directory: 'lib', extensions: new Set(['.ts', '.tsx']) },
 ];
 
 const standalonePublicMarkdown = ['README.md', 'public/brand/README.md'];
@@ -109,6 +132,45 @@ function contentFor(path: string): string {
 }
 
 describe('public claim firewall', () => {
+  test('keeps homepage product capabilities future-facing', () => {
+    const homepage = contentFor('app/(marketing)/page.tsx');
+
+    expect(homepage).toContain('Still in development');
+    expect(homepage).toContain('Loxa is being built');
+    expect(homepage).toContain('href="/docs/install"');
+    expect(homepage).not.toMatch(
+      /What works today|Current source behavior|Current Loxa workflow|Loxa (?:manages|provides|recovers)/i,
+    );
+  });
+
+  test('keeps install channels non-actionable until verification', () => {
+    const install = contentFor('content/docs/install.mdx');
+
+    expect(install.match(/No supported install command yet\./g)).toHaveLength(5);
+    expect(install).toContain('clean-machine verification');
+    expect(install).not.toMatch(
+      /curl\s|npm\s+(?:install|i)|npx\s+loxa|cargo\s+install|pip(?:3)?\s+install|uv\s+(?:tool\s+install|add)|brew\s+install/i,
+    );
+  });
+
+  test('keeps the removed homepage-only component out of public source', () => {
+    expect(contentFor('components/evidence-flow.tsx')).toBe('');
+  });
+
+  test.each(unsupportedInstallerExamples)(
+    'rejects an unsupported installer canary: %s',
+    (example) => {
+      expect(forbidden.some((pattern) => pattern.test(example))).toBe(true);
+    },
+  );
+
+  test.each([
+    'The website does not claim customers, revenue, retention, or enterprise deployments.',
+    'Customer validation is not current product behavior.',
+  ])('allows neutral public-truth language: %s', (text) => {
+    expect(forbidden.some((pattern) => pattern.test(text))).toBe(false);
+  });
+
   test('rejects forbidden or unsupported public claims', () => {
     const violations = publicFiles.flatMap(({ path, content }) =>
       forbidden

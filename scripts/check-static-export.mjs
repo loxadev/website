@@ -47,6 +47,20 @@ const generatedMarkdownPatterns = [
   { label: 'unsupported performance claim', pattern: /tokens?\s*\/\s*s(?:ec(?:ond)?s?)?|time to first token|\bfastest\b/i },
   { label: 'unsupported readiness claim', pattern: /production[- ]ready|openai[- ]compatible|anthropic[- ]compatible/i },
   { label: 'unsupported failover claim', pattern: /cloud.{0,20}(?:failover|fails?\s+over)/i },
+  {
+    label: 'unsupported installer command',
+    pattern:
+      /\bcurl\b[^\n]{0,120}\|\s*(?:ba)?sh\b|\bnpm\s+(?:install|i|exec)\s+(?:-g\s+)?loxa\b|\bnpx\s+loxa\b|\bcargo\s+install\s+loxa\b|\bpip(?:3)?\s+install\s+loxa\b|\buv\s+(?:tool\s+install|add)\s+loxa\b|\bbrew\s+install(?:\s+[^.\n]+)?\b/i,
+  },
+  {
+    label: 'internal repository history',
+    pattern: /(?:private|internal)\s+(?:repository|repo)\b/i,
+  },
+  {
+    label: 'unsupported traction claim',
+    pattern:
+      /\b\d+\s+(?:users?|customers?|pilots?)\b|\b(?:has|serves?)\s+(?:\d+\s+)?(?:users?|customers?|pilots?)\b|\b(?:generates?|reports?|has)\s+(?:\$\s*)?\d[\d,]*(?:\.\d+)?(?:[kmb])?\s+(?:in\s+)?revenue\b|\b(?:mrr|arr)\s*(?:is|of|:|\$|\d)|\bretention\s+(?:is|of|at|:)\s*\d|\b(?:has|runs?)\s+(?:\d+\s+)?enterprise deployments?\b/i,
+  },
   { label: 'credential-like token', pattern: /\b(?:sk|gh[opurs]|hf)_[A-Za-z0-9_-]{20,}\b/ },
   { label: 'credential assignment', pattern: /\b(?:CLOUDFLARE_API_TOKEN|GITHUB_TOKEN)\s*[:=]\s*["']?[A-Za-z0-9_-]{20,}/i },
 ];
