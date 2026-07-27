@@ -7,6 +7,7 @@ const outputDirectory = resolve(repositoryRoot, 'out');
 const documentRoutes = [
   '/',
   '/docs',
+  '/docs/install',
   '/docs/doctor',
   '/docs/models',
   '/docs/cli',
@@ -20,6 +21,7 @@ const llmRoutes = [
   '/llms.txt',
   '/llms-full.txt',
   '/llms.mdx/docs/index',
+  '/llms.mdx/docs/install',
   '/llms.mdx/docs/cli',
   '/llms.mdx/docs/experimental/supervisor',
 ];

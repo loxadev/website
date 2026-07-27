@@ -12,6 +12,7 @@ const staticCheckPath = join(repositoryRoot, 'scripts/check-static-export.mjs');
 const documentPaths = [
   'index.html',
   'docs.html',
+  'docs/install.html',
   'docs/doctor.html',
   'docs/models.html',
   'docs/cli.html',
@@ -23,6 +24,7 @@ const llmPaths = [
   'llms.txt',
   'llms-full.txt',
   'llms.mdx/docs/index',
+  'llms.mdx/docs/install',
   'llms.mdx/docs/cli',
   'llms.mdx/docs/experimental/supervisor',
 ];
@@ -199,7 +201,7 @@ describe('CI and static-export contract', () => {
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
       ).resolves.toMatchObject({
-        stdout: expect.stringContaining('14 routes checked'),
+        stdout: expect.stringContaining('16 routes checked'),
       });
 
       const forbiddenBundle = join(
@@ -297,7 +299,7 @@ describe('CI and static-export contract', () => {
 
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
-      ).resolves.toMatchObject({ stdout: expect.stringContaining('14 routes checked') });
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('16 routes checked') });
     } finally {
       await rm(fixtureDirectory, { recursive: true, force: true });
     }

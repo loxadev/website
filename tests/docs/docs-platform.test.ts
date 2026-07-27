@@ -161,4 +161,37 @@ describe('static documentation platform', () => {
       /@media \(max-width: 420px\)[\s\S]*\.loxaDocsPageActions > \*[\s\S]*width: 100%/,
     );
   });
+
+  test('publishes installation status without unsupported commands', async () => {
+    const [installText, indexText, projectText, metaText, staticCheckText] =
+      await Promise.all([
+        readText('content/docs/install.mdx'),
+        readText('content/docs/index.mdx'),
+        readText('content/docs/project.mdx'),
+        readText('content/docs/meta.json'),
+        readText('scripts/check-static-export.mjs'),
+      ]);
+
+    const meta = JSON.parse(metaText) as { pages: string[] };
+
+    expect(meta.pages).toContain('install');
+    expect(staticCheckText).toContain("'/docs/install'");
+    expect(staticCheckText).toContain("'/llms.mdx/docs/install'");
+    expect(installText).toContain('There is no supported public installer yet.');
+    expect(installText).toContain('| Bash | Still in development |');
+    expect(installText).toContain('| npm | Still in development |');
+    expect(installText).toContain('| Cargo | Still in development |');
+    expect(installText).toContain('| pip / uv | Still in development |');
+    expect(installText).toContain('| Homebrew | Coming soon |');
+    expect(installText.match(/No supported install command yet\./g)).toHaveLength(5);
+    expect(installText).not.toMatch(
+      /curl\s|npm\s+(?:install|i)|cargo\s+install|pip(?:3)?\s+install|uv\s+(?:tool\s+install|add)|brew\s+install/i,
+    );
+    expect(indexText).toContain('Loxa is **still in development** at `0.1.0-dev`.');
+    expect(indexText).toContain('[Install status](/docs/install)');
+    expect(projectText).toContain('| Development stage | Still in development |');
+    expect(projectText).toContain('| Platform focus | Apple Silicon first |');
+    expect(projectText).toContain('| Validation | Manual stress testing in progress |');
+    expect(projectText).toContain('| Public installers | No supported public installer yet |');
+  });
 });
