@@ -3,6 +3,8 @@ import type { ComponentProps, ComponentType } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import DocumentationPage from '@/app/docs/[[...slug]]/page';
+import { InstallStatusList } from '@/components/install-status-list';
+import { INSTALLERS } from '@/lib/installer-catalog';
 
 type TestMdxComponents = {
   h2: ComponentType<ComponentProps<'h2'>>;
@@ -35,9 +37,14 @@ vi.mock('@/lib/source', async () => {
             createElement(components.h2, { id: 'section' }, heading),
             isInstallPage
               ? createElement(
-                  components.a,
-                  { href: 'https://github.com/loxadev/loxa' },
-                  'public source',
+                  Fragment,
+                  null,
+                  createElement(InstallStatusList, { installers: INSTALLERS }),
+                  createElement(
+                    components.a,
+                    { href: 'https://github.com/loxadev/loxa' },
+                    'public source',
+                  ),
                 )
               : null,
           ),
@@ -108,6 +115,15 @@ describe('DocumentationPage copy controls', () => {
         name: 'Planned installation channels',
       }),
     ).toBeVisible();
+    expect(screen.getByRole('list', { name: 'Installation methods' })).toBeVisible();
+    expect(screen.getAllByRole('listitem').map((item) => item.textContent)).toEqual([
+      'curlStill in development. No supported install command yet.',
+      'npmStill in development. No supported install command yet.',
+      'cargoStill in development. No supported install command yet.',
+      'pip / uvStill in development. No supported install command yet.',
+      'brewComing soon.',
+    ]);
+    expect(screen.queryByRole('button', { name: /copy .* command/i })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View Markdown' })).toHaveAttribute(
       'href',
       '/llms.mdx/docs/install',

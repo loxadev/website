@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { describe, expect, test } from 'vitest';
 
+import { INSTALLERS } from '@/lib/installer-catalog';
+
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const execFileAsync = promisify(execFile);
 
@@ -163,7 +165,10 @@ describe('public claim firewall', () => {
   test('keeps install channels non-actionable until verification', () => {
     const install = contentFor('content/docs/install.mdx');
 
-    expect(install.match(/No supported install command yet\./g)).toHaveLength(5);
+    expect(INSTALLERS).toHaveLength(5);
+    for (const installer of INSTALLERS) {
+      expect(installer).not.toHaveProperty('command');
+    }
     expect(install).toContain('clean-machine verification');
     expect(install).not.toMatch(
       /curl\s|npm\s+(?:install|i)|npx\s+loxa|cargo\s+install|pip(?:3)?\s+install|uv\s+(?:tool\s+install|add)|brew\s+install/i,

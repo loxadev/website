@@ -3,6 +3,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
 
+import { INSTALLERS } from '@/lib/installer-catalog';
+
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 async function readText(relativePath: string): Promise<string> {
@@ -178,12 +180,18 @@ describe('static documentation platform', () => {
     expect(staticCheckText).toContain("'/docs/install'");
     expect(staticCheckText).toContain("'/llms.mdx/docs/install'");
     expect(installText).toContain('There is no supported public installer yet.');
-    expect(installText).toContain('| Bash | Still in development |');
-    expect(installText).toContain('| npm | Still in development |');
-    expect(installText).toContain('| Cargo | Still in development |');
-    expect(installText).toContain('| pip / uv | Still in development |');
-    expect(installText).toContain('| Homebrew | Coming soon |');
-    expect(installText.match(/No supported install command yet\./g)).toHaveLength(5);
+    expect(installText).toContain(
+      "import { InstallStatusList } from '@/components/install-status-list';",
+    );
+    expect(installText).toContain("import { INSTALLERS } from '@/lib/installer-catalog';");
+    expect(installText).toContain('<InstallStatusList installers={INSTALLERS} />');
+    expect(installText).not.toContain('| Channel | Status | Current instruction |');
+    expect(installText).not.toContain('| Bash | Still in development |');
+    expect(installText).not.toContain('| Homebrew | Coming soon |');
+    expect(INSTALLERS).toHaveLength(5);
+    for (const installer of INSTALLERS) {
+      expect(installer).not.toHaveProperty('command');
+    }
     expect(installText).not.toMatch(
       /curl\s|npm\s+(?:install|i)|cargo\s+install|pip(?:3)?\s+install|uv\s+(?:tool\s+install|add)|brew\s+install/i,
     );

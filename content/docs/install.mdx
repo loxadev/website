@@ -3,17 +3,14 @@ title: Install status
 description: Planned Loxa installation channels and their current development status.
 ---
 
+import { InstallStatusList } from '@/components/install-status-list';
+import { INSTALLERS } from '@/lib/installer-catalog';
+
 Loxa installation is **still in development**. There is no supported public installer yet.
 
 ## Planned installation channels
 
-| Channel | Status | Current instruction |
-| --- | --- | --- |
-| Bash | Still in development | No supported install command yet. Follow development on [GitHub](https://github.com/loxadev/loxa). |
-| npm | Still in development | No supported install command yet. Follow development on [GitHub](https://github.com/loxadev/loxa). |
-| Cargo | Still in development | No supported install command yet. Follow development on [GitHub](https://github.com/loxadev/loxa). |
-| pip / uv | Still in development | No supported install command yet. Follow development on [GitHub](https://github.com/loxadev/loxa). |
-| Homebrew | Coming soon | No supported install command yet. Follow development on [GitHub](https://github.com/loxadev/loxa). |
+<InstallStatusList installers={INSTALLERS} />
 
 Installation instructions become actionable only after release artifacts exist and
 each path passes clean-machine verification. A separate reviewed change will add an
