@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import MarketingPage from '@/app/(marketing)/page';
@@ -10,60 +10,97 @@ import MarketingPage from '@/app/(marketing)/page';
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 describe('MarketingPage', () => {
-  it('presents the current public Loxa workflow without unverified claims', () => {
+  it('presents Loxa as still in development without current-availability claims', () => {
     const { container } = render(<MarketingPage />);
 
     expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content');
-    expect(screen.getByText('Open-source CLI · Early development')).toBeVisible();
+    expect(
+      screen.getByText('Open source · Still in development · Apple Silicon first'),
+    ).toBeVisible();
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'Inspect your machine. Manage local model files.',
+        name: 'Run open models reliably on your hardware.',
       }),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'Loxa is being built as a local AI node that will manage compatible models and a supervised runtime, then give trusted applications one local API while models and requests remain on hardware you control.',
+      ),
     ).toBeVisible();
     expect(screen.getByRole('link', { name: 'Read the docs' })).toHaveAttribute(
       'href',
       '/docs',
     );
-    expect(screen.getByRole('link', { name: 'View source' })).toHaveAttribute(
-      'href',
-      'https://github.com/loxadev/loxa',
-    );
-    expect(screen.getByText('0.1.0-dev')).toBeVisible();
-    expect(screen.queryByText(/install/i)).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(/benchmark|fastest|production-ready|openai-compatible/i),
-    ).not.toBeInTheDocument();
-
-    expect(container.querySelector('section#capabilities')).toBeInTheDocument();
-    const workflow = screen.getByRole('region', { name: 'Current Loxa workflow' });
-    expect(workflow).toBeVisible();
-    expect(within(workflow).getByText('loxa doctor')).toBeVisible();
-    expect(within(workflow).getByText('loxa list')).toBeVisible();
-    expect(within(workflow).getByText('loxa pull <model-id>')).toBeVisible();
-    expect(within(workflow).getByText('~/.loxa/models')).toBeVisible();
-    expect(within(workflow).getByText('Size and SHA-256 checks').closest('li')).toHaveAttribute(
-      'aria-current',
-      'step',
-    );
-
-    for (const image of container.querySelectorAll('[role="img"]')) {
-      expect(
-        image.hasAttribute('aria-label') || image.hasAttribute('aria-labelledby'),
-      ).toBe(true);
+    for (const sourceLink of screen.getAllByRole('link', { name: 'View source' })) {
+      expect(sourceLink).toHaveAttribute('href', 'https://github.com/loxadev/loxa');
     }
+
+    expect(
+      screen.getByText(
+        'Getting the first response from an open model is easy. Keeping the whole setup usable means choosing a compatible model and runtime, managing processes and ports, reconnecting clients, and handling failures.',
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'Loxa is being built to manage the node around the model, not to become another inference engine.',
+      ),
+    ).toBeVisible();
+    expect(screen.getByText('Manual stress testing is in progress.')).toBeVisible();
+    expect(
+      screen.getByText(
+        'Public capability and availability statements will be added only after the owner approves the test evidence.',
+      ),
+    ).toBeVisible();
+    expect(screen.getByText('0.1.0-dev')).toBeVisible();
+
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Install with your favorite package manager.',
+      }),
+    ).toBeVisible();
+    expect(screen.getByRole('link', { name: 'View installation status' })).toHaveAttribute(
+      'href',
+      '/docs/install',
+    );
+
+    expect(screen.queryByText(/what works today/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/current source behavior/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('region', { name: /current loxa workflow/i }),
+    ).not.toBeInTheDocument();
+    expect(container).not.toHaveTextContent(/\bloxa (?:doctor|list|pull|run|ps|stop)\b/i);
+    expect(container).not.toHaveTextContent(/\b(?:bash|npm|cargo|pip|uv|homebrew)\b/i);
   });
 
-  it('keeps capability numbers beside their content without empty alternating columns', async () => {
+  it('keeps homepage actions large enough for keyboard and touch use', async () => {
     const styles = await readFile(
       join(repositoryRoot, 'app/(marketing)/page.module.css'),
       'utf8',
     );
 
-    expect(styles).toContain(
-      'grid-template-columns: 64px minmax(0, 1fr);',
+    expect(styles).toMatch(
+      /\.primaryAction,\s*\.secondaryAction\s*\{[^}]*min-height:\s*48px;/,
     );
-    expect(styles).toMatch(/\.narrativeNumber\s*\{[^}]*font-size:\s*1rem;/);
-    expect(styles).not.toContain('.narrativeRow:nth-child(even)');
+    expect(styles).not.toContain('.capabilities');
+    expect(styles).not.toContain('.currentMarker');
+  });
+
+  it('keeps metadata, navigation, and footer status future-facing', async () => {
+    const [site, layout, footer] = await Promise.all([
+      readFile(join(repositoryRoot, 'lib/site.ts'), 'utf8'),
+      readFile(join(repositoryRoot, 'app/layout.tsx'), 'utf8'),
+      readFile(join(repositoryRoot, 'components/site-footer.tsx'), 'utf8'),
+    ]);
+
+    expect(site).toContain(
+      'Loxa is being built as an open-source local AI node for running open models on hardware you control. Still in development and Apple Silicon first.',
+    );
+    expect(site).toContain("{ label: 'Product', href: '/#product-direction' }");
+    expect(layout).toContain('Loxa | Local AI node in development');
+    expect(footer).toContain('Still in development');
+    expect(footer).toContain("{ label: 'Install status', href: '/docs/install' }");
+    expect(footer).not.toContain('Early development');
   });
 });
