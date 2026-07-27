@@ -23,18 +23,18 @@ const forbidden = [
   /fails?\s+over.{0,20}(?:to\s+)?(?:the\s+)?cloud/i,
   /no orphan processes/i,
   /\bcurl\b[^\n]{0,120}\|\s*(?:ba)?sh\b/i,
-  /\bnpm\s+(?:install|i|exec)\s+(?:-g\s+)?loxa\b/i,
-  /\bnpx\s+loxa\b/i,
-  /\bcargo\s+install\s+loxa\b/i,
-  /\bpip(?:3)?\s+install\s+loxa\b/i,
-  /\buv\s+(?:tool\s+install|add)\s+loxa\b/i,
-  /\bbrew\s+install(?:\s+[^.\n]+)?\b/i,
+  /\bnpm\s+(?:install|i|exec)(?:\s+(?:-g|--global))?\s+loxa\b/i,
+  /\bnpx(?:\s+(?:-y|--yes))?\s+loxa\b/i,
+  /\bcargo\s+install(?:\s+--locked)?\s+loxa\b/i,
+  /\bpip(?:3)?\s+install(?:\s+--user)?\s+loxa\b/i,
+  /\buv\s+(?:tool\s+install(?:\s+--upgrade)?|add(?:\s+--dev)?)\s+loxa\b/i,
+  /\bbrew\s+install(?:\s+--cask)?\b/i,
   /(?:private|internal)\s+(?:repository|repo)\b/i,
   /\b\d+\s+(?:users?|customers?|pilots?)\b/i,
-  /\b(?:has|serves?)\s+(?:\d+\s+)?(?:users?|customers?|pilots?)\b/i,
-  /\b(?:generates?|reports?|has)\s+(?:\$\s*)?\d[\d,]*(?:\.\d+)?(?:[kmb])?\s+(?:in\s+)?revenue\b/i,
+  /\b(?:has|serves?)\s+(?:(?:\d+\s+)?(?:users?|customers?|pilots?)|(?:an?\s+)(?:customer|pilot))\b/i,
+  /\b(?:generates?|reports?|has)\s+(?:(?:\$\s*)?\d[\d,]*(?:\.\d+)?(?:[kmb])?\s+(?:in\s+)?)?revenue\b/i,
   /\b(?:mrr|arr)\s*(?:is|of|:|\$|\d)/i,
-  /\bretention\s+(?:is|of|at|:)\s*\d/i,
+  /\bretention\s+(?:is|of|at|:)\s*(?:\d|high\b|strong\b|healthy\b|positive\b)/i,
   /\b(?:has|runs?)\s+(?:\d+\s+)?enterprise deployments?\b/i,
   /\/v1\/chat\/completions/i,
   /—/,
@@ -52,6 +52,23 @@ const unsupportedInstallerExamples = [
   ['pip', 'install', candidatePackageName],
   ['uv', 'tool', 'install', candidatePackageName],
   ['brew', 'install', candidatePackageName],
+].map((tokens) => tokens.join(' '));
+
+const optionBearingUnsupportedInstallerExamples = [
+  ['npm', 'install', '--global', candidatePackageName],
+  ['npx', '--yes', candidatePackageName],
+  ['cargo', 'install', '--locked', candidatePackageName],
+  ['pip', 'install', '--user', candidatePackageName],
+  ['uv', 'tool', 'install', '--upgrade', candidatePackageName],
+  ['uv', 'add', '--dev', candidatePackageName],
+  ['brew', 'install', '--cask', candidatePackageName],
+].map((tokens) => tokens.join(' '));
+
+const affirmativeTractionExamples = [
+  ['Loxa', 'has', 'a', 'customer'],
+  ['Loxa', 'has', 'a', 'pilot'],
+  ['Loxa', 'has', 'revenue'],
+  ['Our', 'retention', 'is', 'high'],
 ].map((tokens) => tokens.join(' '));
 
 type PublicTextFile = {
@@ -159,6 +176,20 @@ describe('public claim firewall', () => {
 
   test.each(unsupportedInstallerExamples)(
     'rejects an unsupported installer canary: %s',
+    (example) => {
+      expect(forbidden.some((pattern) => pattern.test(example))).toBe(true);
+    },
+  );
+
+  test.each(optionBearingUnsupportedInstallerExamples)(
+    'rejects an option-bearing unsupported installer canary: %s',
+    (example) => {
+      expect(forbidden.some((pattern) => pattern.test(example))).toBe(true);
+    },
+  );
+
+  test.each(affirmativeTractionExamples)(
+    'rejects an unsupported affirmative traction canary: %s',
     (example) => {
       expect(forbidden.some((pattern) => pattern.test(example))).toBe(true);
     },

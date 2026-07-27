@@ -50,7 +50,7 @@ const generatedMarkdownPatterns = [
   {
     label: 'unsupported installer command',
     pattern:
-      /\bcurl\b[^\n]{0,120}\|\s*(?:ba)?sh\b|\bnpm\s+(?:install|i|exec)\s+(?:-g\s+)?loxa\b|\bnpx\s+loxa\b|\bcargo\s+install\s+loxa\b|\bpip(?:3)?\s+install\s+loxa\b|\buv\s+(?:tool\s+install|add)\s+loxa\b|\bbrew\s+install(?:\s+[^.\n]+)?\b/i,
+      /\bcurl\b[^\n]{0,120}\|\s*(?:ba)?sh\b|\bnpm\s+(?:install|i|exec)(?:\s+(?:-g|--global))?\s+loxa\b|\bnpx(?:\s+(?:-y|--yes))?\s+loxa\b|\bcargo\s+install(?:\s+--locked)?\s+loxa\b|\bpip(?:3)?\s+install(?:\s+--user)?\s+loxa\b|\buv\s+(?:tool\s+install(?:\s+--upgrade)?|add(?:\s+--dev)?)\s+loxa\b|\bbrew\s+install(?:\s+--cask)?\b/i,
   },
   {
     label: 'internal repository history',
@@ -59,7 +59,7 @@ const generatedMarkdownPatterns = [
   {
     label: 'unsupported traction claim',
     pattern:
-      /\b\d+\s+(?:users?|customers?|pilots?)\b|\b(?:has|serves?)\s+(?:\d+\s+)?(?:users?|customers?|pilots?)\b|\b(?:generates?|reports?|has)\s+(?:\$\s*)?\d[\d,]*(?:\.\d+)?(?:[kmb])?\s+(?:in\s+)?revenue\b|\b(?:mrr|arr)\s*(?:is|of|:|\$|\d)|\bretention\s+(?:is|of|at|:)\s*\d|\b(?:has|runs?)\s+(?:\d+\s+)?enterprise deployments?\b/i,
+      /\b\d+\s+(?:users?|customers?|pilots?)\b|\b(?:has|serves?)\s+(?:(?:\d+\s+)?(?:users?|customers?|pilots?)|(?:an?\s+)(?:customer|pilot))\b|\b(?:generates?|reports?|has)\s+(?:(?:\$\s*)?\d[\d,]*(?:\.\d+)?(?:[kmb])?\s+(?:in\s+)?)?revenue\b|\b(?:mrr|arr)\s*(?:is|of|:|\$|\d)|\bretention\s+(?:is|of|at|:)\s*(?:\d|high\b|strong\b|healthy\b|positive\b)|\b(?:has|runs?)\s+(?:\d+\s+)?enterprise deployments?\b/i,
   },
   { label: 'credential-like token', pattern: /\b(?:sk|gh[opurs]|hf)_[A-Za-z0-9_-]{20,}\b/ },
   { label: 'credential assignment', pattern: /\b(?:CLOUDFLARE_API_TOKEN|GITHUB_TOKEN)\s*[:=]\s*["']?[A-Za-z0-9_-]{20,}/i },
