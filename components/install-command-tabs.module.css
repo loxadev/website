@@ -59,6 +59,7 @@
   border: 1px solid var(--loxa-control-border);
   background: var(--loxa-accent);
   color: var(--loxa-accent-text);
+  font-family: var(--font-instrument-sans), sans-serif;
   font-weight: 600;
 }
 

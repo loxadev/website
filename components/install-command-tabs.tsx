@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useRef, useState, type KeyboardEvent } from 'react';
 
 import type { Installer, InstallerId } from '@/lib/installer-catalog';
 
@@ -32,6 +32,7 @@ export function InstallCommandTabs({
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const activeIdRef = useRef(activeId);
   const copyRequestId = useRef(0);
+  const instanceId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
 
   if (!initialInstaller) {
     return null;
@@ -95,8 +96,8 @@ export function InstallCommandTabs({
       <div className={styles.tablist} role="tablist" aria-label="Installation methods">
         {installers.map((installer, index) => {
           const isActive = installer.id === activeId;
-          const tabId = `installer-tab-${installer.id}`;
-          const panelId = `installer-panel-${installer.id}`;
+          const tabId = `installer-${instanceId}-tab-${installer.id}`;
+          const panelId = `installer-${instanceId}-panel-${installer.id}`;
 
           return (
             <button
@@ -122,8 +123,8 @@ export function InstallCommandTabs({
 
       {installers.map((installer) => {
         const isActive = installer.id === activeId;
-        const tabId = `installer-tab-${installer.id}`;
-        const panelId = `installer-panel-${installer.id}`;
+        const tabId = `installer-${instanceId}-tab-${installer.id}`;
+        const panelId = `installer-${instanceId}-panel-${installer.id}`;
 
         return (
           <div

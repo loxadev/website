@@ -110,11 +110,19 @@ describe('InstallCommandTabs', () => {
 
     screen.getByRole('tab', { name: 'curl' }).focus();
     await user.keyboard('{ArrowRight}');
-    expect(screen.getByRole('tab', { name: 'npm' })).toHaveFocus();
+    const npmTab = screen.getByRole('tab', { name: 'npm' });
+    expect(npmTab).toHaveFocus();
+    expect(npmTab).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-labelledby', npmTab.id);
     await user.keyboard('{End}');
-    expect(screen.getByRole('tab', { name: 'brew' })).toHaveFocus();
+    const brewTab = screen.getByRole('tab', { name: 'brew' });
+    expect(brewTab).toHaveFocus();
+    expect(brewTab).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('Coming soon.');
     await user.keyboard('{Home}{ArrowLeft}');
-    expect(screen.getByRole('tab', { name: 'brew' })).toHaveFocus();
+    expect(brewTab).toHaveFocus();
+    expect(brewTab).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('Coming soon.');
   });
 
   it('scrolls the selected tab into view after keyboard selection', async () => {
@@ -135,6 +143,25 @@ describe('InstallCommandTabs', () => {
 
     expect(screen.getAllByRole('tabpanel', { hidden: true })).toHaveLength(5);
     for (const tab of screen.getAllByRole('tab')) {
+      const panel = document.getElementById(tab.getAttribute('aria-controls') ?? '');
+      expect(panel).toBeInTheDocument();
+      expect(panel).toHaveAttribute('aria-labelledby', tab.id);
+    }
+  });
+
+  it('keeps tab and panel identifiers unique across component instances', () => {
+    render(
+      <>
+        <InstallCommandTabs installers={allUnavailableFixture} />
+        <InstallCommandTabs installers={allUnavailableFixture} />
+      </>,
+    );
+
+    const tabs = screen.getAllByRole('tab');
+    const panels = screen.getAllByRole('tabpanel', { hidden: true });
+    expect(new Set(tabs.map((tab) => tab.id)).size).toBe(tabs.length);
+    expect(new Set(panels.map((panel) => panel.id)).size).toBe(panels.length);
+    for (const tab of tabs) {
       const panel = document.getElementById(tab.getAttribute('aria-controls') ?? '');
       expect(panel).toBeInTheDocument();
       expect(panel).toHaveAttribute('aria-labelledby', tab.id);
@@ -241,7 +268,12 @@ describe('InstallCommandTabs', () => {
 
   it('renders the selected unavailable message in its server HTML', () => {
     const html = renderToString(<InstallCommandTabs installers={allUnavailableFixture} />);
+    const host = window.document.createElement('div');
+    host.innerHTML = html;
+    const selectedPanel = host.querySelector('[role="tabpanel"]:not([hidden])');
 
-    expect(html).toContain('Still in development. No supported install command yet.');
+    expect(selectedPanel).not.toBeNull();
+    expect(selectedPanel).not.toHaveAttribute('hidden');
+    expect(selectedPanel).toHaveTextContent('Still in development. No supported install command yet.');
   });
 });
