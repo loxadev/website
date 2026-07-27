@@ -5,7 +5,7 @@ import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page
 import { DocsPageActions } from '@/components/docs-page-actions';
 import { githubUrlForPage, markdownUrlForPage } from '@/lib/get-llm-text';
 import { source } from '@/lib/source';
-import { getMDXComponents } from '@/mdx-components';
+import { getMDXComponents, headingsWithoutCopyControls } from '@/mdx-components';
 
 type PageProps = Readonly<{
   params: Promise<{ slug?: string[] }>;
@@ -39,6 +39,7 @@ export default async function DocumentationPage({ params }: PageProps) {
   if (!page) notFound();
 
   const MDX = page.data.body;
+  const isInstallPage = page.url === '/docs/install';
 
   return (
     <DocsPage
@@ -51,9 +52,14 @@ export default async function DocumentationPage({ params }: PageProps) {
       <DocsPageActions
         githubUrl={githubUrlForPage(page)}
         markdownUrl={markdownUrlForPage(page)}
+        showCopyMarkdown={!isInstallPage}
       />
       <DocsBody className="loxaDocsBody">
-        <MDX components={getMDXComponents()} />
+        <MDX
+          components={getMDXComponents(
+            isInstallPage ? headingsWithoutCopyControls : undefined,
+          )}
+        />
       </DocsBody>
     </DocsPage>
   );

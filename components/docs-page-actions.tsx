@@ -3,17 +3,24 @@ import { MarkdownCopyButton } from 'fumadocs-ui/layouts/docs/page';
 type DocsPageActionsProps = Readonly<{
   markdownUrl: string;
   githubUrl: string;
+  showCopyMarkdown?: boolean;
 }>;
 
 const actionClass =
   'inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--loxa-control-border)] px-3 py-2 text-sm font-medium text-fd-foreground transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-ring';
 
-export function DocsPageActions({ markdownUrl, githubUrl }: DocsPageActionsProps) {
+export function DocsPageActions({
+  markdownUrl,
+  githubUrl,
+  showCopyMarkdown = true,
+}: DocsPageActionsProps) {
   return (
     <nav className="loxaDocsPageActions" aria-label="Page actions">
-      <MarkdownCopyButton className={actionClass} markdownUrl={markdownUrl}>
-        Copy Markdown
-      </MarkdownCopyButton>
+      {showCopyMarkdown ? (
+        <MarkdownCopyButton className={actionClass} markdownUrl={markdownUrl}>
+          Copy Markdown
+        </MarkdownCopyButton>
+      ) : null}
       <a className={actionClass} href={markdownUrl}>
         <FileIcon />
         View Markdown
