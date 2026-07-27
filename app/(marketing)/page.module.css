@@ -136,7 +136,7 @@
   text-wrap: balance;
 }
 
-.installerCopy > p,
+.installerDescription,
 .problemContext,
 .problemFocus {
   max-width: 720px;
@@ -146,7 +146,7 @@
   line-height: 1.55;
 }
 
-.installerCopy > p,
+.installerDescription,
 .problemContext {
   margin-top: 24px;
 }

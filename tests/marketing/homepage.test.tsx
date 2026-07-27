@@ -96,6 +96,22 @@ describe('MarketingPage', () => {
     expect(styles).not.toContain('.currentMarker');
   });
 
+  it('keeps installer labels distinct from descriptive copy styling', async () => {
+    const [homepage, styles] = await Promise.all([
+      readFile(join(repositoryRoot, 'app/(marketing)/page.tsx'), 'utf8'),
+      readFile(join(repositoryRoot, 'app/(marketing)/page.module.css'), 'utf8'),
+    ]);
+
+    expect(homepage).toContain(
+      '<p className={styles.sectionLabel}>Still in development</p>',
+    );
+    expect(homepage).toContain('<p className={styles.installerDescription}>');
+    expect(styles).toMatch(
+      /\.installerDescription,\s*\.problemContext,\s*\.problemFocus\s*\{[^}]*font-size:/,
+    );
+    expect(styles).not.toContain('.installerCopy > p');
+  });
+
   it('keeps metadata, navigation, and footer status future-facing', async () => {
     const [site, layout, footer] = await Promise.all([
       readFile(join(repositoryRoot, 'lib/site.ts'), 'utf8'),

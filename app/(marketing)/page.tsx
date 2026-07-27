@@ -50,7 +50,7 @@ export default function MarketingPage() {
         <div className={styles.installerCopy}>
           <p className={styles.sectionLabel}>Still in development</p>
           <h2 id="installer-title">Install Loxa with your favorite package manager.</h2>
-          <p>
+          <p className={styles.installerDescription}>
             Installation channels are being verified one at a time. Available commands
             appear here only after their release artifacts pass clean-machine testing.
           </p>
