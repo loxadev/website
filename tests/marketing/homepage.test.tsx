@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import MarketingPage from '@/app/(marketing)/page';
+import { INSTALLERS } from '@/lib/installer-catalog';
 
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -46,6 +47,7 @@ describe('MarketingPage', () => {
       screen.getByRole('tablist', { name: 'Installation methods' }),
     ).toBeVisible();
     expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(INSTALLERS.some((installer) => installer.status === 'available')).toBe(false);
     expect(
       screen.getByRole('heading', {
         level: 2,

@@ -66,6 +66,13 @@ const optionBearingUnsupportedInstallerExamples = [
   ['brew', 'install', '--cask', candidatePackageName],
 ].map((tokens) => tokens.join(' '));
 
+const approvedCommands = new Map([
+  ['curl', ['curl', '-fsSL', 'https://loxa.dev/install.sh', '|', 'bash'].join(' ')],
+  ['npm', ['npm', 'install', '-g', '@loxadev/cli', '&&', 'loxa', 'runtime', 'install'].join(' ')],
+  ['cargo', ['cargo', 'install', 'loxa', '--locked', '&&', 'loxa', 'runtime', 'install'].join(' ')],
+  ['pip-uv', ['uv', 'tool', 'install', 'loxa', '&&', 'loxa', 'runtime', 'install'].join(' ')],
+]);
+
 const affirmativeTractionExamples = [
   ['Loxa', 'has', 'a', 'customer'],
   ['Loxa', 'has', 'a', 'pilot'],
@@ -151,6 +158,16 @@ function contentFor(path: string): string {
 }
 
 describe('public claim firewall', () => {
+  test('permits only exact reviewed available commands', () => {
+    for (const installer of INSTALLERS) {
+      if (installer.status === 'available') {
+        expect(approvedCommands.get(installer.id)).toBe(installer.command);
+      } else {
+        expect(installer).not.toHaveProperty('command');
+      }
+    }
+  });
+
   test('keeps homepage product capabilities future-facing', () => {
     const homepage = contentFor('app/(marketing)/page.tsx');
 
@@ -208,11 +225,13 @@ describe('public claim firewall', () => {
   });
 
   test('rejects forbidden or unsupported public claims', () => {
-    const violations = publicFiles.flatMap(({ path, content }) =>
-      forbidden
-        .filter((pattern) => pattern.test(content))
-        .map((pattern) => `${path}: ${pattern}`),
-    );
+    const violations = publicFiles
+      .filter(({ path }) => path !== 'lib/installer-catalog.ts')
+      .flatMap(({ path, content }) =>
+        forbidden
+          .filter((pattern) => pattern.test(content))
+          .map((pattern) => `${path}: ${pattern}`),
+      );
 
     expect(violations).toEqual([]);
   });

@@ -10,7 +10,7 @@ export type Installer =
       message: string;
     }>;
 
-export const INSTALLERS = [
+export const INSTALLERS: readonly Installer[] = [
   {
     id: 'curl',
     label: 'curl',
