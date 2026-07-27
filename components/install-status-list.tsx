@@ -1,13 +1,9 @@
-import type { Installer } from '@/lib/installer-catalog';
+import { INSTALLERS } from '@/lib/installer-catalog';
 
-type InstallStatusListProps = Readonly<{
-  installers: readonly Installer[];
-}>;
-
-export function InstallStatusList({ installers }: InstallStatusListProps) {
+export function InstallStatusList() {
   return (
     <ul aria-label="Installation methods">
-      {installers.map((installer) => (
+      {INSTALLERS.map((installer) => (
         <li key={installer.id}>
           <strong>{installer.label}</strong>
           <p>

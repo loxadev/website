@@ -165,9 +165,10 @@ describe('static documentation platform', () => {
   });
 
   test('publishes installation status without unsupported commands', async () => {
-    const [installText, indexText, projectText, metaText, staticCheckText] =
+    const [installText, statusListText, indexText, projectText, metaText, staticCheckText] =
       await Promise.all([
         readText('content/docs/install.mdx'),
+        readText('components/install-status-list.tsx'),
         readText('content/docs/index.mdx'),
         readText('content/docs/project.mdx'),
         readText('content/docs/meta.json'),
@@ -183,8 +184,10 @@ describe('static documentation platform', () => {
     expect(installText).toContain(
       "import { InstallStatusList } from '@/components/install-status-list';",
     );
-    expect(installText).toContain("import { INSTALLERS } from '@/lib/installer-catalog';");
-    expect(installText).toContain('<InstallStatusList installers={INSTALLERS} />');
+    expect(installText).not.toContain("import { INSTALLERS } from '@/lib/installer-catalog';");
+    expect(installText).toContain('<InstallStatusList />');
+    expect(installText).not.toContain('<InstallStatusList installers={INSTALLERS} />');
+    expect(statusListText).toContain("import { INSTALLERS } from '@/lib/installer-catalog';");
     expect(installText).not.toContain('| Channel | Status | Current instruction |');
     expect(installText).not.toContain('| Bash | Still in development |');
     expect(installText).not.toContain('| Homebrew | Coming soon |');

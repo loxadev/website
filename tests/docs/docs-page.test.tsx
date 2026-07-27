@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import DocumentationPage from '@/app/docs/[[...slug]]/page';
 import { InstallStatusList } from '@/components/install-status-list';
-import { INSTALLERS } from '@/lib/installer-catalog';
 
 type TestMdxComponents = {
   h2: ComponentType<ComponentProps<'h2'>>;
@@ -39,7 +38,7 @@ vi.mock('@/lib/source', async () => {
               ? createElement(
                   Fragment,
                   null,
-                  createElement(InstallStatusList, { installers: INSTALLERS }),
+                  createElement(InstallStatusList),
                   createElement(
                     components.a,
                     { href: 'https://github.com/loxadev/loxa' },
