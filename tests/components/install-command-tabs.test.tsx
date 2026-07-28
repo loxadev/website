@@ -56,6 +56,86 @@ function deferred() {
   return { promise, reject, resolve };
 }
 
+const allowedColorKeywords = new Set(
+  [
+    'accentcolor',
+    'accentcolortext',
+    'activetext',
+    'buttonborder',
+    'buttonface',
+    'buttontext',
+    'canvas',
+    'canvastext',
+    'currentcolor',
+    'field',
+    'fieldtext',
+    'graytext',
+    'highlight',
+    'highlighttext',
+    'inherit',
+    'initial',
+    'linktext',
+    'mark',
+    'marktext',
+    'revert',
+    'revert-layer',
+    'selecteditem',
+    'selecteditemtext',
+    'transparent',
+    'unset',
+    'visitedtext',
+  ],
+);
+const literalColorSyntax =
+  /#[\da-f]{3,8}\b|(?:color|color-mix|device-cmyk|hsl|hsla|hwb|lab|lch|light-dark|oklab|oklch|rgb|rgba)\s*\([^;{}]*?\)/gi;
+
+function isNamedCssColor(token: string): boolean {
+  if (allowedColorKeywords.has(token.toLowerCase())) return false;
+
+  const probe = document.createElement('span').style;
+  probe.color = '';
+  probe.color = token;
+  return probe.color !== '';
+}
+
+function isColorCapableProperty(property: string): boolean {
+  const normalized = property.toLowerCase().replace(/^--/, '');
+
+  return (
+    /^(?:accent|background|border|caret|column-rule|filter|mask|outline|scrollbar|text-decoration|text-emphasis)(?:-|$)/.test(
+      normalized,
+    ) ||
+    /(?:^|-)(?:color|fill|shadow|stroke)(?:-|$)/.test(normalized) ||
+    /^(?:brand|foreground|ink|surface|text)(?:-|$)/.test(normalized)
+  );
+}
+
+function findLiteralColorValues(styles: string): string[] {
+  const withoutComments = styles.replace(/\/\*[\s\S]*?\*\//g, '');
+  const declarationValues = Array.from(
+    withoutComments.matchAll(/(?:^|[;{])\s*([-\w]+)\s*:\s*([^;{}]+);/gm),
+    (match) => ({ property: match[1], value: match[2].trim() }),
+  ).filter(({ property }) => isColorCapableProperty(property));
+
+  return declarationValues.flatMap(({ value }) => {
+    const scannableValue = value
+      .replace(/url\([^)]*\)/gi, ' ')
+      .replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, ' ');
+    const explicitSyntax = Array.from(
+      scannableValue.matchAll(literalColorSyntax),
+      (match) => match[0],
+    );
+    const keywordSource = scannableValue
+      .replace(literalColorSyntax, ' ')
+      .replace(/--[A-Za-z0-9_-]+/g, ' ');
+    const namedColors = (keywordSource.match(/[A-Za-z][A-Za-z-]*/g) ?? []).filter(
+      isNamedCssColor,
+    );
+
+    return [...explicitSyntax, ...namedColors];
+  });
+}
+
 describe('InstallCommandTabs', () => {
   beforeEach(() => {
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
@@ -314,12 +394,6 @@ describe('InstallCommandTabs', () => {
       join(repositoryRoot, 'components/install-command-tabs.module.css'),
       'utf8',
     );
-    const colorValues = Array.from(
-      styles.matchAll(
-        /(?:^|\s)(?:background|background-color|border-color|color):\s*([^;]+);/gm,
-      ),
-      (match) => match[1].trim(),
-    );
 
     expect(styles).toMatch(/\.tab\s*\{[\s\S]*?min-height:\s*44px;/);
     expect(styles).toMatch(/\.copyButton\s*\{[\s\S]*?min-height:\s*48px;/);
@@ -329,11 +403,35 @@ describe('InstallCommandTabs', () => {
     expect(styles).toMatch(
       /@media\s*\(forced-colors:\s*active\)\s*\{[\s\S]*?\.panel,\s*\.tab,\s*\.copyButton\s*\{[^}]*border-color:\s*CanvasText;/,
     );
-    expect(colorValues.every((value) => /^(?:var\(.+\)|transparent|inherit|CanvasText)$/.test(value))).toBe(true);
+    expect(findLiteralColorValues(styles)).toEqual([]);
     expect(styles).not.toMatch(/transition\s*:\s*all\b/i);
     expect(styles).not.toMatch(/\.dark\b/);
     expect(styles).toMatch(
       /\.message,\s*\.copyMessage\s*\{[\s\S]*?font-family:\s*var\(--font-ibm-plex-mono\),\s*monospace;/,
     );
+  });
+
+  it('detects literal colors in shorthand and other color-capable declarations', () => {
+    const canaryStyles = `
+      .border-canary { border: 1px solid rebeccapurple; }
+      .shadow-canary { box-shadow: 0 1px 2px #123456; }
+    `;
+
+    expect(findLiteralColorValues(canaryStyles)).toEqual([
+      'rebeccapurple',
+      '#123456',
+    ]);
+  });
+
+  it('ignores color-like tokens in comments and non-color declarations', () => {
+    const canaryStyles = `
+      /* border: 1px solid red; */
+      .font-canary { font-family: "Coral", sans-serif; }
+      .animation-canary { animation-name: red; }
+      .content-canary { content: "#123456"; }
+      .url-canary { background: url("#abc"); }
+    `;
+
+    expect(findLiteralColorValues(canaryStyles)).toEqual([]);
   });
 });
