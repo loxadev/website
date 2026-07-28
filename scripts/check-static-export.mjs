@@ -1,5 +1,6 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { basename, extname, join, relative, resolve, sep } from 'node:path';
+import { JSDOM } from 'jsdom';
 
 const repositoryRoot = process.cwd();
 const outputDirectory = resolve(repositoryRoot, 'out');
@@ -145,19 +146,16 @@ async function requireDocument(route) {
 }
 
 function staticIconLinks(homeDocument) {
-  const links = [];
+  const document = new JSDOM(homeDocument).window.document;
 
-  for (const tag of homeDocument.matchAll(/<link\b[^>]*>/gi)) {
-    const attributes = {};
-
-    for (const attribute of tag[0].matchAll(/\s(rel|href|type|sizes)\s*=\s*(["'])(.*?)\2/gi)) {
-      attributes[attribute[1].toLowerCase()] = attribute[3];
-    }
-
-    if (attributes.href) links.push(attributes);
-  }
-
-  return links;
+  return Array.from(document.querySelectorAll('link'))
+    .map((link) => ({
+      rel: link.getAttribute('rel'),
+      href: link.getAttribute('href'),
+      type: link.getAttribute('type'),
+      sizes: link.getAttribute('sizes'),
+    }))
+    .filter((link) => link.href !== null);
 }
 
 async function requireStaticIcons(homeDocument) {

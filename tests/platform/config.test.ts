@@ -128,6 +128,15 @@ describe('deterministic static platform', () => {
     expect(await sha256('app/icon.svg')).toBe(
       'f3db540bdb0f0f8b9b25f4f6ae9a6ee3b5de973057c1703ebfa4f3563fb47a9d',
     );
+    expect(await sha256('app/favicon.ico')).toBe(
+      '2afea348ce5a74d88e6755f0e0393e3f6e04cc1b18944b3fcf1055aeae00b947',
+    );
+    expect(await sha256('app/icon1.png')).toBe(
+      '787fb75036fa52513a01aa60c7aa2b4cefffe9853761cc54b7656ce2716175c7',
+    );
+    expect(await sha256('app/apple-icon.png')).toBe(
+      'ba72812f5774fb2ba654da011f8de33bba5f8a6446a0dc7bf3fa393fdc356559',
+    );
 
     const icon32 = await readFile(join(repositoryRoot, 'app/icon1.png'));
     const appleIcon = await readFile(join(repositoryRoot, 'app/apple-icon.png'));

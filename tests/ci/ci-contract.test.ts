@@ -302,6 +302,35 @@ describe('CI and static-export contract', () => {
     }
   });
 
+  test('ignores favicon-looking links inside HTML comments', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+    const outputDirectory = join(fixtureDirectory, 'out');
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+
+      await writeFile(
+        join(outputDirectory, 'index.html'),
+        `<!doctype html><title>Loxa</title>
+<!--
+<link rel="icon" href="/favicon.ico?fixture" type="image/x-icon">
+<link rel="icon" href="/icon.svg?fixture" type="image/svg+xml" sizes="any">
+<link rel="icon" href="/icon1.png?fixture" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-icon.png?fixture" type="image/png" sizes="180x180">
+-->`,
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining('missing static icon link: /favicon.ico'),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
   test('declares every static-export favicon path', () => {
     for (const path of ['/favicon.ico', '/icon.svg', '/icon1.png', '/apple-icon.png']) {
       expect(staticCheck).toContain(path);
