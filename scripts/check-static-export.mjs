@@ -1,5 +1,6 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { basename, extname, join, relative, resolve, sep } from 'node:path';
+import { JSDOM } from 'jsdom';
 
 const repositoryRoot = process.cwd();
 const outputDirectory = resolve(repositoryRoot, 'out');
@@ -26,6 +27,17 @@ const llmRoutes = [
   '/llms.mdx/docs/experimental/supervisor',
 ];
 const nextServerDirectory = '_next/server';
+const staticIcons = [
+  { path: '/favicon.ico', type: 'image/x-icon' },
+  { path: '/icon.svg', type: 'image/svg+xml', sizes: 'any' },
+  { path: '/icon1.png', type: 'image/png', sizes: '32x32' },
+  {
+    path: '/apple-icon.png',
+    rel: 'apple-touch-icon',
+    type: 'image/png',
+    sizes: '180x180',
+  },
+];
 
 const privatePatterns = [
   {
@@ -131,6 +143,61 @@ async function requireDocument(route) {
       '; checked ' +
       candidates.map(displayPath).join(', '),
   );
+}
+
+function staticIconLinks(homeDocument) {
+  const document = new JSDOM(homeDocument).window.document;
+
+  return Array.from(document.querySelectorAll('link'))
+    .map((link) => ({
+      rel: link.getAttribute('rel'),
+      href: link.getAttribute('href'),
+      type: link.getAttribute('type'),
+      sizes: link.getAttribute('sizes'),
+    }))
+    .filter((link) => link.href !== null);
+}
+
+async function requireStaticIcons(homeDocument) {
+  for (const icon of staticIcons) {
+    const iconPath = join(outputDirectory, basename(icon.path));
+    const iconStats = await getStats(iconPath);
+
+    if (!iconStats?.isFile() || iconStats.size === 0) {
+      throw new Error('missing static icon: ' + displayPath(iconPath));
+    }
+  }
+
+  const links = staticIconLinks(await readFile(homeDocument, 'utf8'));
+
+  for (const icon of staticIcons) {
+    const matchingLinks = links.filter((link) => {
+      try {
+        return new URL(link.href, 'https://loxa.dev').pathname === icon.path;
+      } catch {
+        return false;
+      }
+    });
+
+    if (matchingLinks.length === 0) {
+      throw new Error('missing static icon link: ' + icon.path);
+    }
+
+    if (matchingLinks.length > 1) {
+      throw new Error('duplicate static icon link: ' + icon.path);
+    }
+
+    const link = matchingLinks[0];
+    const rel = icon.rel ?? 'icon';
+
+    if (
+      link.rel !== rel ||
+      link.type !== icon.type ||
+      (icon.sizes !== undefined && link.sizes !== icon.sizes)
+    ) {
+      throw new Error('invalid static icon link: ' + icon.path);
+    }
+  }
 }
 
 async function collectFiles(directory) {
@@ -310,8 +377,9 @@ async function main() {
     throw new Error('out/ is absent; run pnpm build first');
   }
 
-  await Promise.all(documentRoutes.map(requireDocument));
+  const [homeDocument] = await Promise.all(documentRoutes.map(requireDocument));
   await Promise.all(llmRoutes.map(requireDocument));
+  await requireStaticIcons(homeDocument);
   await requireMarkdownHeaders();
   const searchPayload = await requireSearchPayload();
   const emittedFiles = await collectFiles(outputDirectory);

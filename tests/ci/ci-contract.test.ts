@@ -83,6 +83,19 @@ async function writeStaticFixture(
     await writeFile(absolutePath, '<!doctype html><title>Loxa</title>');
   }
 
+  await writeFile(
+    join(outputDirectory, 'index.html'),
+    `<!doctype html><title>Loxa</title>
+<link rel="icon" href="/favicon.ico?fixture" type="image/x-icon">
+<link rel="icon" href="/icon.svg?fixture" type="image/svg+xml" sizes="any">
+<link rel="icon" href="/icon1.png?fixture" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-icon.png?fixture" type="image/png" sizes="180x180">`,
+  );
+
+  for (const iconPath of ['favicon.ico', 'icon.svg', 'icon1.png', 'apple-icon.png']) {
+    await writeFile(join(outputDirectory, iconPath), 'fixture icon');
+  }
+
   for (const llmPath of llmPaths) {
     const absolutePath = join(outputDirectory, llmPath);
     await mkdir(dirname(absolutePath), { recursive: true });
@@ -234,6 +247,93 @@ describe('CI and static-export contract', () => {
       });
     } finally {
       await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
+  test('requires the exported favicon files and unique generated root links', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+    const outputDirectory = join(fixtureDirectory, 'out');
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('16 routes checked') });
+
+      const indexPath = join(outputDirectory, 'index.html');
+      await writeFile(
+        indexPath,
+        (await readFile(indexPath, 'utf8')).replace(
+          'href="/favicon.ico?fixture" type="image/x-icon"',
+          'href="/favicon.ico?fixture" type="image/x-icon" sizes="48x48"',
+        ),
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('16 routes checked') });
+
+      const faviconPath = join(outputDirectory, 'favicon.ico');
+      await rm(faviconPath);
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining('missing static icon: out/favicon.ico'),
+      });
+
+      await writeFile(faviconPath, 'fixture icon');
+      await writeFile(
+        indexPath,
+        (await readFile(indexPath, 'utf8')) +
+          '\n<link rel="icon" href="/icon.svg?duplicate" type="image/svg+xml" sizes="any">',
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining('duplicate static icon link: /icon.svg'),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
+  test('ignores favicon-looking links inside HTML comments', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+    const outputDirectory = join(fixtureDirectory, 'out');
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+
+      await writeFile(
+        join(outputDirectory, 'index.html'),
+        `<!doctype html><title>Loxa</title>
+<!--
+<link rel="icon" href="/favicon.ico?fixture" type="image/x-icon">
+<link rel="icon" href="/icon.svg?fixture" type="image/svg+xml" sizes="any">
+<link rel="icon" href="/icon1.png?fixture" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-icon.png?fixture" type="image/png" sizes="180x180">
+-->`,
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining('missing static icon link: /favicon.ico'),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
+  test('declares every static-export favicon path', () => {
+    for (const path of ['/favicon.ico', '/icon.svg', '/icon1.png', '/apple-icon.png']) {
+      expect(staticCheck).toContain(path);
     }
   });
 

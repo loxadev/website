@@ -20,6 +20,27 @@ async function sha256(relativePath: string): Promise<string> {
   return createHash('sha256').update(contents).digest('hex');
 }
 
+function pngDimensions(contents: Buffer): { width: number; height: number } {
+  expect(contents.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
+  expect(contents.subarray(12, 16).toString('ascii')).toBe('IHDR');
+  return {
+    width: contents.readUInt32BE(16),
+    height: contents.readUInt32BE(20),
+  };
+}
+
+function icoDimensions(contents: Buffer): string[] {
+  expect(contents.readUInt16LE(0)).toBe(0);
+  expect(contents.readUInt16LE(2)).toBe(1);
+  const count = contents.readUInt16LE(4);
+  return Array.from({ length: count }, (_, index) => {
+    const offset = 6 + index * 16;
+    const width = contents[offset] || 256;
+    const height = contents[offset + 1] || 256;
+    return `${width}x${height}`;
+  }).sort();
+}
+
 const packageJson = JSON.parse(await readText('package.json')) as {
   packageManager: string;
   engines: { node: string };
@@ -101,5 +122,31 @@ describe('deterministic static platform', () => {
     expect(brandFiles.length).toBeGreaterThan(0);
     expect(brandSvg).not.toMatch(/<(?:filter|mask|clipPath|rect|circle|ellipse)\b/);
     expect(brandSvg).not.toMatch(/\b(?:transform|stroke)=/);
+  });
+
+  test('commits the approved cross-browser favicon assets', async () => {
+    expect(await sha256('app/icon.svg')).toBe(
+      'f3db540bdb0f0f8b9b25f4f6ae9a6ee3b5de973057c1703ebfa4f3563fb47a9d',
+    );
+    expect(await sha256('app/favicon.ico')).toBe(
+      '2afea348ce5a74d88e6755f0e0393e3f6e04cc1b18944b3fcf1055aeae00b947',
+    );
+    expect(await sha256('app/icon1.png')).toBe(
+      '787fb75036fa52513a01aa60c7aa2b4cefffe9853761cc54b7656ce2716175c7',
+    );
+    expect(await sha256('app/apple-icon.png')).toBe(
+      'ba72812f5774fb2ba654da011f8de33bba5f8a6446a0dc7bf3fa393fdc356559',
+    );
+
+    const icon32 = await readFile(join(repositoryRoot, 'app/icon1.png'));
+    const appleIcon = await readFile(join(repositoryRoot, 'app/apple-icon.png'));
+    const favicon = await readFile(join(repositoryRoot, 'app/favicon.ico'));
+    const svg = await readText('app/icon.svg');
+
+    expect(pngDimensions(icon32)).toEqual({ width: 32, height: 32 });
+    expect(pngDimensions(appleIcon)).toEqual({ width: 180, height: 180 });
+    expect(icoDimensions(favicon)).toEqual(['16x16', '32x32', '48x48']);
+    expect(svg).toContain('fill="#101410"');
+    expect(svg).toContain('fill="#F4F6F0"');
   });
 });
