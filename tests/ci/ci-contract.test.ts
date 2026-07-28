@@ -86,7 +86,7 @@ async function writeStaticFixture(
   await writeFile(
     join(outputDirectory, 'index.html'),
     `<!doctype html><title>Loxa</title>
-<link rel="icon" href="/favicon.ico?fixture" type="image/x-icon" sizes="48x48">
+<link rel="icon" href="/favicon.ico?fixture" type="image/x-icon">
 <link rel="icon" href="/icon.svg?fixture" type="image/svg+xml" sizes="any">
 <link rel="icon" href="/icon1.png?fixture" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-icon.png?fixture" type="image/png" sizes="180x180">`,
@@ -261,6 +261,19 @@ describe('CI and static-export contract', () => {
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
       ).resolves.toMatchObject({ stdout: expect.stringContaining('16 routes checked') });
 
+      const indexPath = join(outputDirectory, 'index.html');
+      await writeFile(
+        indexPath,
+        (await readFile(indexPath, 'utf8')).replace(
+          'href="/favicon.ico?fixture" type="image/x-icon"',
+          'href="/favicon.ico?fixture" type="image/x-icon" sizes="48x48"',
+        ),
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('16 routes checked') });
+
       const faviconPath = join(outputDirectory, 'favicon.ico');
       await rm(faviconPath);
 
@@ -272,7 +285,6 @@ describe('CI and static-export contract', () => {
       });
 
       await writeFile(faviconPath, 'fixture icon');
-      const indexPath = join(outputDirectory, 'index.html');
       await writeFile(
         indexPath,
         (await readFile(indexPath, 'utf8')) +
