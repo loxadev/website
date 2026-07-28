@@ -1,3 +1,7 @@
+import { readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToString } from 'react-dom/server';
@@ -5,6 +9,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { InstallCommandTabs } from '@/components/install-command-tabs';
 import { INSTALLERS, type Installer, type InstallerId } from '@/lib/installer-catalog';
+
+const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 const allUnavailableFixture = [
   {
@@ -118,11 +124,11 @@ describe('InstallCommandTabs', () => {
     const brewTab = screen.getByRole('tab', { name: 'brew' });
     expect(brewTab).toHaveFocus();
     expect(brewTab).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Coming soon.');
+    expect(screen.getByRole('tabpanel')).toHaveTextContent(/^Coming soon\.$/);
     await user.keyboard('{Home}{ArrowLeft}');
     expect(brewTab).toHaveFocus();
     expect(brewTab).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Coming soon.');
+    expect(screen.getByRole('tabpanel')).toHaveTextContent(/^Coming soon\.$/);
   });
 
   it('scrolls the selected tab into view after keyboard selection', async () => {
@@ -266,6 +272,32 @@ describe('InstallCommandTabs', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Copied curl command.');
   });
 
+  it('clears stale feedback while a repeated copy attempt is pending and announces it again', async () => {
+    const user = userEvent.setup();
+    const secondWrite = deferred();
+    const writeText = vi
+      .fn()
+      .mockResolvedValueOnce(undefined)
+      .mockReturnValueOnce(secondWrite.promise);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+    render(<InstallCommandTabs installers={availableFixture} />);
+
+    const copy = screen.getByRole('button', { name: 'Copy curl command' });
+    await user.click(copy);
+    expect(screen.getByRole('status')).toHaveTextContent('Copied curl command.');
+
+    await user.click(copy);
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+
+    secondWrite.resolve();
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent('Copied curl command.');
+    });
+  });
+
   it('renders the selected unavailable message in its server HTML', () => {
     const html = renderToString(<InstallCommandTabs installers={allUnavailableFixture} />);
     const host = window.document.createElement('div');
@@ -275,5 +307,33 @@ describe('InstallCommandTabs', () => {
     expect(selectedPanel).not.toBeNull();
     expect(selectedPanel).not.toHaveAttribute('hidden');
     expect(selectedPanel).toHaveTextContent('Still in development. No supported install command yet.');
+  });
+
+  it('protects the installer target, breakpoint, color, motion, and typography contracts', async () => {
+    const styles = await readFile(
+      join(repositoryRoot, 'components/install-command-tabs.module.css'),
+      'utf8',
+    );
+    const colorValues = Array.from(
+      styles.matchAll(
+        /(?:^|\s)(?:background|background-color|border-color|color):\s*([^;]+);/gm,
+      ),
+      (match) => match[1].trim(),
+    );
+
+    expect(styles).toMatch(/\.tab\s*\{[\s\S]*?min-height:\s*44px;/);
+    expect(styles).toMatch(/\.copyButton\s*\{[\s\S]*?min-height:\s*48px;/);
+    expect(styles).toMatch(
+      /@media\s*\(max-width:\s*640px\)\s*\{[\s\S]*?\.availablePanel\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);/,
+    );
+    expect(styles).toMatch(
+      /@media\s*\(forced-colors:\s*active\)\s*\{[\s\S]*?\.panel,\s*\.tab,\s*\.copyButton\s*\{[^}]*border-color:\s*CanvasText;/,
+    );
+    expect(colorValues.every((value) => /^(?:var\(.+\)|transparent|inherit|CanvasText)$/.test(value))).toBe(true);
+    expect(styles).not.toMatch(/transition\s*:\s*all\b/i);
+    expect(styles).not.toMatch(/\.dark\b/);
+    expect(styles).toMatch(
+      /\.message,\s*\.copyMessage\s*\{[\s\S]*?font-family:\s*var\(--font-ibm-plex-mono\),\s*monospace;/,
+    );
   });
 });

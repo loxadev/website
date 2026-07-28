@@ -5,10 +5,14 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { describe, expect, test } from 'vitest';
 
-import { INSTALLERS } from '@/lib/installer-catalog';
+import { INSTALLERS, type Installer } from '@/lib/installer-catalog';
 
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const execFileAsync = promisify(execFile);
+const internalContextPattern = new RegExp(
+  `(?:^|[^A-Za-z0-9])${['internal', 'context'].join('[-_ ]?')}(?:[/\\\\]|$)`,
+  'i',
+);
 
 const forbidden = [
   /loxa bench/i,
@@ -41,7 +45,8 @@ const forbidden = [
   /\/v1\/chat\/completions/i,
   /—/,
   /\/Users\/[^/\s]+(?:\/[^\s"'<>]*)?/i,
-  /(?:^|[^A-Za-z0-9])(?:private|internal)[-_ ]?context(?:[/\\]|$)/i,
+  /(?:^|[^A-Za-z0-9])private[-_ ]?context(?:[/\\]|$)/i,
+  internalContextPattern,
   /(?:^|[^A-Za-z0-9])\.superpowers(?:[/\\]|$)/i,
 ];
 
@@ -152,9 +157,40 @@ async function collectPublicText(): Promise<PublicTextFile[]> {
 
 const publicFiles = await collectPublicText();
 const publicContent = new Map(publicFiles.map(({ path, content }) => [path, content]));
+const prohibitedIdentifier = ['internal', 'context'].join('-');
 
 function contentFor(path: string): string {
   return publicContent.get(path) ?? '';
+}
+
+function findPublicViolations(
+  files: readonly PublicTextFile[],
+  installers: readonly Installer[],
+): string[] {
+  const fileViolations = files
+    .filter(({ path }) => path !== 'lib/installer-catalog.ts')
+    .flatMap(({ path, content }) =>
+      forbidden
+        .filter((pattern) => pattern.test(content))
+        .map((pattern) => `${path}: ${pattern}`),
+    );
+  const catalogViolations = installers.flatMap((installer) =>
+    Object.entries(installer).flatMap(([field, value]) => {
+      if (typeof value !== 'string') return [];
+      if (field === 'command') {
+        return installer.status === 'available' &&
+          approvedCommands.get(installer.id) === value
+          ? []
+          : [`installer ${installer.id}: unapproved command`];
+      }
+
+      return forbidden
+        .filter((pattern) => pattern.test(value))
+        .map((pattern) => `installer ${installer.id}.${field}: ${pattern}`);
+    }),
+  );
+
+  return [...fileViolations, ...catalogViolations];
 }
 
 describe('public claim firewall', () => {
@@ -225,15 +261,24 @@ describe('public claim firewall', () => {
   });
 
   test('rejects forbidden or unsupported public claims', () => {
-    const violations = publicFiles
-      .filter(({ path }) => path !== 'lib/installer-catalog.ts')
-      .flatMap(({ path, content }) =>
-        forbidden
-          .filter((pattern) => pattern.test(content))
-          .map((pattern) => `${path}: ${pattern}`),
-      );
+    expect(findPublicViolations(publicFiles, INSTALLERS)).toEqual([]);
+  });
 
-    expect(violations).toEqual([]);
+  test.each([
+    ['forbidden claim', 'Production-ready today.'],
+    ['private text', prohibitedIdentifier],
+    ['unsupported command', `Use ${unsupportedInstallerExamples[1]} today.`],
+  ])('rejects %s embedded in an installer status message', (_label, message) => {
+    const canaryCatalog = [
+      {
+        id: 'curl',
+        label: 'curl',
+        status: 'development',
+        message,
+      },
+    ] as const satisfies readonly Installer[];
+
+    expect(findPublicViolations([], canaryCatalog)).not.toEqual([]);
   });
 
   test('keeps supervisor commands inside the labeled experimental page', () => {

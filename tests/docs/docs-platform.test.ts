@@ -187,7 +187,9 @@ describe('static documentation platform', () => {
     expect(installText).not.toContain("import { INSTALLERS } from '@/lib/installer-catalog';");
     expect(installText).toContain('<InstallStatusList />');
     expect(installText).not.toContain('<InstallStatusList installers={INSTALLERS} />');
-    expect(statusListText).toContain("import { INSTALLERS } from '@/lib/installer-catalog';");
+    expect(statusListText).toContain("from '@/lib/installer-catalog';");
+    expect(statusListText).toContain('INSTALLERS.map');
+    expect(statusListText).toContain('installerDocumentationDetail(installer)');
     expect(installText).not.toContain('| Channel | Status | Current instruction |');
     expect(installText).not.toContain('| Bash | Still in development |');
     expect(installText).not.toContain('| Homebrew | Coming soon |');

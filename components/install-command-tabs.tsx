@@ -73,6 +73,7 @@ export function InstallCommandTabs({
   async function copyCommand(installer: Extract<Installer, { status: 'available' }>) {
     const requestId = copyRequestId.current + 1;
     copyRequestId.current = requestId;
+    setCopyMessage('');
 
     if (!navigator.clipboard) {
       setCopyMessage('Could not copy the command. Select and copy it manually.');

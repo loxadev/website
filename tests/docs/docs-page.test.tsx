@@ -120,7 +120,7 @@ describe('DocumentationPage copy controls', () => {
       'npmStill in development. No supported install command yet.',
       'cargoStill in development. No supported install command yet.',
       'pip / uvStill in development. No supported install command yet.',
-      'brewComing soon.',
+      'brewComing soon. No supported install command yet.',
     ]);
     expect(screen.queryByRole('button', { name: /copy .* command/i })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View Markdown' })).toHaveAttribute(

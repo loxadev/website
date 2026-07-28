@@ -1,4 +1,7 @@
-import { INSTALLERS } from '@/lib/installer-catalog';
+import {
+  INSTALLERS,
+  installerDocumentationDetail,
+} from '@/lib/installer-catalog';
 
 export function InstallStatusList() {
   return (
@@ -6,9 +9,7 @@ export function InstallStatusList() {
       {INSTALLERS.map((installer) => (
         <li key={installer.id}>
           <strong>{installer.label}</strong>
-          <p>
-            {installer.status === 'available' ? installer.command : installer.message}
-          </p>
+          <p>{installerDocumentationDetail(installer)}</p>
         </li>
       ))}
     </ul>

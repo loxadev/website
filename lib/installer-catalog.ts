@@ -37,3 +37,11 @@ export const INSTALLERS: readonly Installer[] = [
   },
   { id: 'brew', label: 'brew', status: 'coming-soon', message: 'Coming soon.' },
 ] as const satisfies readonly Installer[];
+
+export function installerDocumentationDetail(installer: Installer): string {
+  if (installer.status === 'available') return installer.command;
+  if (installer.status === 'coming-soon') {
+    return `${installer.message} No supported install command yet.`;
+  }
+  return installer.message;
+}
