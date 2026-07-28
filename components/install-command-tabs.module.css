@@ -1,0 +1,99 @@
+.container {
+  border: 1px solid var(--loxa-control-border);
+  background: var(--loxa-subtle-surface);
+}
+
+.tablist {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--loxa-control-border);
+  overscroll-behavior-inline: contain;
+  white-space: nowrap;
+}
+
+.tab {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.tab:hover {
+  background: var(--loxa-control-hover);
+}
+
+.tab[aria-selected='true'] {
+  border-color: var(--loxa-control-border);
+  background: var(--loxa-control-selected-surface);
+  color: var(--loxa-control-selected-foreground);
+}
+
+.panel {
+  padding: 20px;
+}
+
+.availablePanel {
+  display: grid;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+}
+
+.command {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--loxa-control-border);
+  background: var(--loxa-surface);
+  color: var(--loxa-text);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.copyButton {
+  min-height: 48px;
+  padding-inline: 16px;
+  border: 1px solid var(--loxa-control-border);
+  background: var(--loxa-accent);
+  color: var(--loxa-accent-text);
+  font-family: var(--font-instrument-sans), sans-serif;
+  font-weight: 600;
+}
+
+.copyButton:hover {
+  background: var(--loxa-accent-hover);
+}
+
+.message,
+.copyMessage {
+  margin: 0;
+  color: var(--loxa-text-muted);
+  font-family: var(--font-ibm-plex-mono), monospace;
+  line-height: 1.5;
+}
+
+.copyMessage {
+  min-height: 1.5em;
+  padding: 0 20px 20px;
+}
+
+@media (max-width: 640px) {
+  .availablePanel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .copyButton {
+    width: 100%;
+  }
+}
+
+@media (forced-colors: active) {
+  .panel,
+  .tab,
+  .copyButton {
+    border-color: CanvasText;
+  }
+}

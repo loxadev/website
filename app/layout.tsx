@@ -12,7 +12,7 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: 'Loxa | Inspect local AI hardware and model files',
+    default: 'Loxa | Local AI node in development',
     template: '%s | Loxa',
   },
   description: siteConfig.description,
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: '/',
     siteName: siteConfig.name,
-    title: 'Loxa | Inspect local AI hardware and model files',
+    title: 'Loxa | Local AI node in development',
     description: siteConfig.description,
   },
 };

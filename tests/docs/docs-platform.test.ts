@@ -3,6 +3,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
 
+import { INSTALLERS } from '@/lib/installer-catalog';
+
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
 async function readText(relativePath: string): Promise<string> {
@@ -160,5 +162,49 @@ describe('static documentation platform', () => {
     expect(globalStyles).toMatch(
       /@media \(max-width: 420px\)[\s\S]*\.loxaDocsPageActions > \*[\s\S]*width: 100%/,
     );
+  });
+
+  test('publishes installation status without unsupported commands', async () => {
+    const [installText, statusListText, indexText, projectText, metaText, staticCheckText] =
+      await Promise.all([
+        readText('content/docs/install.mdx'),
+        readText('components/install-status-list.tsx'),
+        readText('content/docs/index.mdx'),
+        readText('content/docs/project.mdx'),
+        readText('content/docs/meta.json'),
+        readText('scripts/check-static-export.mjs'),
+      ]);
+
+    const meta = JSON.parse(metaText) as { pages: string[] };
+
+    expect(meta.pages).toContain('install');
+    expect(staticCheckText).toContain("'/docs/install'");
+    expect(staticCheckText).toContain("'/llms.mdx/docs/install'");
+    expect(installText).toContain('There is no supported public installer yet.');
+    expect(installText).toContain(
+      "import { InstallStatusList } from '@/components/install-status-list';",
+    );
+    expect(installText).not.toContain("import { INSTALLERS } from '@/lib/installer-catalog';");
+    expect(installText).toContain('<InstallStatusList />');
+    expect(installText).not.toContain('<InstallStatusList installers={INSTALLERS} />');
+    expect(statusListText).toContain("from '@/lib/installer-catalog';");
+    expect(statusListText).toContain('INSTALLERS.map');
+    expect(statusListText).toContain('installerDocumentationDetail(installer)');
+    expect(installText).not.toContain('| Channel | Status | Current instruction |');
+    expect(installText).not.toContain('| Bash | Still in development |');
+    expect(installText).not.toContain('| Homebrew | Coming soon |');
+    expect(INSTALLERS).toHaveLength(5);
+    for (const installer of INSTALLERS) {
+      expect(installer).not.toHaveProperty('command');
+    }
+    expect(installText).not.toMatch(
+      /curl\s|npm\s+(?:install|i)|cargo\s+install|pip(?:3)?\s+install|uv\s+(?:tool\s+install|add)|brew\s+install/i,
+    );
+    expect(indexText).toContain('Loxa is **still in development** at `0.1.0-dev`.');
+    expect(indexText).toContain('[Install status](/docs/install)');
+    expect(projectText).toContain('| Development stage | Still in development |');
+    expect(projectText).toContain('| Platform focus | Apple Silicon first |');
+    expect(projectText).toContain('| Validation | Manual stress testing in progress |');
+    expect(projectText).toContain('| Public installers | No supported public installer yet |');
   });
 });

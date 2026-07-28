@@ -5,7 +5,9 @@
 }
 
 .hero,
-.capabilities,
+.installer,
+.problem,
+.direction,
 .sourceBand,
 .docsEntry {
   width: min(100%, 1280px);
@@ -14,20 +16,16 @@
 }
 
 .hero {
-  display: grid;
   padding-block: 128px 120px;
-  align-items: center;
-  grid-template-columns: minmax(0, 1.08fr) minmax(400px, 0.92fr);
-  gap: clamp(48px, 7vw, 96px);
 }
 
 .heroCopy {
-  min-width: 0;
+  max-width: 850px;
 }
 
 .eyebrow,
 .sectionLabel,
-.narrativeNumber {
+.directionList span {
   margin: 0;
   font-family: var(--font-ibm-plex-mono), monospace;
   font-size: 0.75rem;
@@ -99,12 +97,25 @@
   background: var(--loxa-control-hover);
 }
 
-.capabilities {
-  padding-block: 120px;
+.installer {
+  display: grid;
+  padding-block: 80px;
+  border-top: 1px solid var(--loxa-divider);
+  gap: 40px;
 }
 
-.sectionIntro {
-  max-width: 720px;
+.installerCopy,
+.installer > :last-child {
+  max-width: 850px;
+}
+
+.problem {
+  display: grid;
+  padding-block: 112px;
+  border-top: 1px solid var(--loxa-divider);
+  align-items: start;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: clamp(48px, 8vw, 120px);
 }
 
 .sectionLabel {
@@ -112,6 +123,8 @@
   color: var(--loxa-text-muted);
 }
 
+.installerCopy h2,
+.problem h2,
 .sectionIntro h2,
 .sourceBand h2,
 .docsEntry h2 {
@@ -123,49 +136,19 @@
   text-wrap: balance;
 }
 
-.narrativeList {
-  margin-top: 80px;
-  border-top: 1px solid var(--loxa-divider);
-}
-
-.narrativeRow {
-  display: grid;
-  min-height: 240px;
-  padding-block: 48px;
-  border-bottom: 1px solid var(--loxa-divider);
-  align-items: start;
-  grid-template-columns: 64px minmax(0, 1fr);
-  gap: clamp(24px, 4vw, 64px);
-}
-
-.narrativeNumber {
-  color: var(--loxa-text-muted);
-  font-size: 1rem;
-}
-
-.narrativeCopy {
-  max-width: 900px;
-}
-
-.narrativeCopy h3 {
+.installerDescription,
+.problemContext,
+.problemFocus {
+  max-width: 720px;
   margin: 0;
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
-  font-weight: 560;
-  letter-spacing: -0.035em;
-  line-height: 1.08;
-}
-
-.narrativeCopy p {
-  margin: 24px 0 0;
   color: var(--loxa-text-muted);
-  font-size: 1.0625rem;
-  line-height: 1.65;
+  font-size: clamp(1.125rem, 2vw, 1.375rem);
+  line-height: 1.55;
 }
 
-.narrativeCopy code {
-  color: var(--loxa-text);
-  font-size: 0.94em;
-  font-weight: 500;
+.installerDescription,
+.problemContext {
+  margin-top: 24px;
 }
 
 .statusBand {
@@ -175,8 +158,12 @@
 }
 
 .statusBand p {
+  display: flex;
   max-width: 1232px;
+  padding: 0;
   margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 0 16px;
   font-family: var(--font-ibm-plex-mono), monospace;
   font-size: 0.8125rem;
   line-height: 1.65;
@@ -184,6 +171,45 @@
 
 .statusBand strong {
   font-weight: 500;
+}
+
+.direction {
+  padding-block: 120px;
+}
+
+.sectionIntro {
+  max-width: 720px;
+}
+
+.directionList {
+  padding: 0;
+  margin: 80px 0 0;
+  border-top: 1px solid var(--loxa-divider);
+  list-style: none;
+}
+
+.directionList li {
+  display: grid;
+  min-height: 136px;
+  padding-block: 32px;
+  border-bottom: 1px solid var(--loxa-divider);
+  align-items: start;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 64px);
+}
+
+.directionList span {
+  color: var(--loxa-text-muted);
+  font-size: 1rem;
+}
+
+.directionList p {
+  max-width: 900px;
+  margin: 0;
+  font-size: clamp(1.375rem, 2.6vw, 2rem);
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
 }
 
 .sourceBand {
@@ -239,14 +265,10 @@
 }
 
 @media (max-width: 900px) {
-  .hero,
+  .problem,
   .sourceBand,
   .docsEntry {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .hero {
-    padding-block: 88px;
   }
 
   .docsEntry {
@@ -256,21 +278,21 @@
 
 @media (max-width: 640px) {
   .hero,
-  .capabilities,
+  .installer,
+  .problem,
+  .direction,
   .sourceBand,
   .docsEntry {
     padding-inline: 20px;
   }
 
   .hero,
-  .capabilities,
+  .installer,
+  .problem,
+  .direction,
   .sourceBand,
   .docsEntry {
     padding-block: 80px;
-  }
-
-  .hero {
-    gap: 64px;
   }
 
   .title {
@@ -282,6 +304,10 @@
     margin-top: 24px;
   }
 
+  .installer {
+    gap: 32px;
+  }
+
   .actions {
     margin-top: 32px;
   }
@@ -291,13 +317,12 @@
     flex: 1 1 100%;
   }
 
-  .narrativeList {
+  .directionList {
     margin-top: 56px;
   }
 
-  .narrativeRow {
+  .directionList li {
     min-height: auto;
-    padding-block: 48px;
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
   }

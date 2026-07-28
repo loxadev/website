@@ -1,3 +1,7 @@
+import {
+  INSTALLERS,
+  installerDocumentationDetail,
+} from '@/lib/installer-catalog';
 import { source } from '@/lib/source';
 
 export const canonicalOrigin = 'https://loxa.dev';
@@ -33,12 +37,18 @@ export async function getLlmText(page: DocsPage): Promise<string> {
 
   // The processed document already contains its frontmatter title as a heading in
   // some Fumadocs versions. Avoid duplicating it in the public text output.
-  const withoutDuplicateTitle = markdown.replace(
-    new RegExp(`^# ${escapeRegExp(title)}\\s*\\n+`),
-    '',
-  );
+  const withoutDuplicateTitle = markdown
+    .replace(new RegExp(`^# ${escapeRegExp(title)}\\s*\\n+`), '')
+    .replace(/<InstallStatusList\s*\/>/g, installerCatalogMarkdown());
 
   return `${metadata.join('\n\n')}\n\n${withoutDuplicateTitle}\n`;
+}
+
+function installerCatalogMarkdown(): string {
+  return INSTALLERS.map(
+    (installer) =>
+      `- **${installer.label}:** ${installerDocumentationDetail(installer)}`,
+  ).join('\n');
 }
 
 function escapeRegExp(value: string): string {

@@ -40,7 +40,15 @@ describe('AI-readable documentation routes', () => {
     expect(route).toContain("status: 404");
     expect(helper).toContain('Maturity: Experimental');
     expect(helper).toContain('/edit/main/');
-    expect(helper).not.toMatch(/process\.env|readFile|internal-context|\.superpowers/);
+    expect(helper).not.toMatch(/process\.env|readFile|private-fixture-marker|\.superpowers/);
+  });
+
+  test('keeps the leak fixture synthetic while preserving the real canary elsewhere', async () => {
+    const fixtureSource = await read('tests/docs/llms-routes.test.ts');
+    const prohibitedIdentifier = ['internal', 'context'].join('-');
+
+    expect(fixtureSource).not.toContain(prohibitedIdentifier);
+    expect(fixtureSource).toContain('private-fixture-marker');
   });
 
   test('serves extensionless Markdown inline on Cloudflare Pages', async () => {

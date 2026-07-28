@@ -6,6 +6,7 @@ import styles from './site-footer.module.css';
 
 const footerLinks: readonly SiteLink[] = [
   { label: 'Docs', href: '/docs' },
+  { label: 'Install status', href: '/docs/install' },
   { label: 'Project', href: '/docs/project' },
   { label: 'GitHub', href: siteConfig.sourceUrl, external: true },
   { label: 'Apache 2.0', href: siteConfig.licenseUrl, external: true },
@@ -20,7 +21,7 @@ export function SiteFooter() {
             Loxa
           </Link>
           <p className={styles.status}>
-            Early development <span aria-hidden="true">·</span> {siteConfig.version}
+            Still in development <span aria-hidden="true">·</span> {siteConfig.version}
           </p>
         </div>
 
