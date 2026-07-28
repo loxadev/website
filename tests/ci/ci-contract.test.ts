@@ -56,12 +56,14 @@ async function readText(relativePath: string): Promise<string> {
   }
 }
 
-const [workflow, staticCheck, readme, pnpmWorkspace] = await Promise.all([
-  readText('.github/workflows/ci.yml'),
-  readText('scripts/check-static-export.mjs'),
-  readText('README.md'),
-  readText('pnpm-workspace.yaml'),
-]);
+const [workflow, staticCheck, readme, packageManifest, pnpmWorkspace] =
+  await Promise.all([
+    readText('.github/workflows/ci.yml'),
+    readText('scripts/check-static-export.mjs'),
+    readText('README.md'),
+    readText('package.json'),
+    readText('pnpm-workspace.yaml'),
+  ]);
 
 async function writeStaticFixture(
   fixtureDirectory: string,
@@ -96,9 +98,22 @@ describe('CI and static-export contract', () => {
   test('allows only reviewed dependency build scripts', () => {
     expect(pnpmWorkspace).toContain('allowBuilds:');
     expect(pnpmWorkspace).toContain("'esbuild@0.28.1': true");
-    expect(pnpmWorkspace).toContain("'sharp@0.34.5': true");
+    expect(pnpmWorkspace).toContain("'sharp@0.35.0': true");
     expect(pnpmWorkspace).toContain("'unrs-resolver@1.12.2': true");
     expect(pnpmWorkspace).not.toContain('dangerouslyAllowAllBuilds');
+  });
+
+  test('pins reviewed dependency security remediations', () => {
+    expect(packageManifest).toContain('"next": "16.2.12"');
+    expect(packageManifest).toContain('"eslint-config-next": "16.2.12"');
+    expect(pnpmWorkspace).toContain("'js-yaml': 5.2.2");
+    expect(pnpmWorkspace).toContain("'minimatch@3.1.5>brace-expansion': 5.0.8");
+    expect(pnpmWorkspace).toContain("'minimatch@10.2.5': 10.2.6");
+    expect(pnpmWorkspace).toContain("'postcss': 8.5.18");
+    expect(pnpmWorkspace).toContain("'sharp': 0.35.0");
+    expect(pnpmWorkspace).toContain(
+      'minimatch@3.1.5: patches/minimatch@3.1.5.patch',
+    );
   });
 
   test('runs the full check pipeline in order with read-only permissions', () => {
