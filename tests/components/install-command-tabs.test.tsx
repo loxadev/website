@@ -101,6 +101,12 @@ function isNamedCssColor(token: string): boolean {
 function isColorCapableProperty(property: string): boolean {
   const normalized = property.toLowerCase().replace(/^--/, '');
 
+  if (property.startsWith('--')) {
+    return /(?:^|-)(?:accent|background|border|brand|color|fill|foreground|ink|shadow|stroke|surface|text)(?:-|$)/.test(
+      normalized,
+    );
+  }
+
   return (
     /^(?:accent|background|border|caret|column-rule|filter|mask|outline|scrollbar|text-decoration|text-emphasis)(?:-|$)/.test(
       normalized,
@@ -423,6 +429,20 @@ describe('InstallCommandTabs', () => {
     ]);
   });
 
+  it('detects literal colors in color-semantic custom properties', () => {
+    const canaryStyles = `
+      .custom-property-canary {
+        --loxa-border: rebeccapurple;
+        --loxa-accent: #123456;
+      }
+    `;
+
+    expect(findLiteralColorValues(canaryStyles)).toEqual([
+      'rebeccapurple',
+      '#123456',
+    ]);
+  });
+
   it('ignores color-like tokens in comments and non-color declarations', () => {
     const canaryStyles = `
       /* border: 1px solid red; */
@@ -430,6 +450,7 @@ describe('InstallCommandTabs', () => {
       .animation-canary { animation-name: red; }
       .content-canary { content: "#123456"; }
       .url-canary { background: url("#abc"); }
+      .custom-property-canary { --loxa-animation-name: red; }
     `;
 
     expect(findLiteralColorValues(canaryStyles)).toEqual([]);
