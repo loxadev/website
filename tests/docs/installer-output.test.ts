@@ -29,11 +29,11 @@ import { GET as getFullText } from '@/app/llms-full.txt/route';
 import { GET as getPageMarkdown } from '@/app/llms.mdx/docs/[[...slug]]/route';
 
 const expectedStatusLines = [
-  '- **curl:** Not available yet.',
-  '- **npm:** Not available yet.',
-  '- **cargo:** Not available yet.',
-  '- **pip / uv:** Not available yet.',
-  '- **brew:** Not available yet.',
+  '- **curl:** Still in development. No supported install command yet.',
+  '- **npm:** Still in development. No supported install command yet.',
+  '- **cargo:** Still in development. No supported install command yet.',
+  '- **pip / uv:** Still in development. No supported install command yet.',
+  '- **brew:** Coming soon. No supported install command yet.',
 ];
 
 async function expectInstallerCatalog(response: Response) {

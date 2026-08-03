@@ -58,9 +58,12 @@ describe('MarketingPage', () => {
     ).toBeVisible();
     expect(screen.getAllByRole('tab')).toHaveLength(5);
     expect(INSTALLERS.some((installer) => installer.status === 'available')).toBe(false);
-    const unavailableMessages = screen.getAllByText('Not available yet.');
-    expect(unavailableMessages).toHaveLength(5);
-    expect(unavailableMessages[0]).toBeVisible();
+    const developmentMessages = screen.getAllByText(
+      'Still in development. No supported install command yet.',
+    );
+    expect(developmentMessages).toHaveLength(4);
+    expect(developmentMessages[0]).toBeVisible();
+    expect(screen.getByText('Coming soon.')).toBeInTheDocument();
     expect(
       screen.getByRole('heading', {
         level: 2,

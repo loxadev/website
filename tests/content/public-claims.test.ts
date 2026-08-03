@@ -164,6 +164,19 @@ function contentFor(path: string): string {
   return publicContent.get(path) ?? '';
 }
 
+function isApprovedComingSoonCatalogMessage(
+  installer: Installer,
+  field: string,
+  value: string,
+): boolean {
+  return (
+    installer.id === 'brew' &&
+    installer.status === 'coming-soon' &&
+    field === 'message' &&
+    value === 'Coming soon.'
+  );
+}
+
 function findPublicViolations(
   files: readonly PublicTextFile[],
   installers: readonly Installer[],
@@ -186,7 +199,10 @@ function findPublicViolations(
       }
 
       return forbidden
-        .filter((pattern) => pattern.test(value))
+        .filter(
+          (pattern) =>
+            !isApprovedComingSoonCatalogMessage(installer, field, value) && pattern.test(value),
+        )
         .map((pattern) => `installer ${installer.id}.${field}: ${pattern}`);
     }),
   );
@@ -223,14 +239,38 @@ describe('public claim firewall', () => {
 
   test('keeps install channels non-actionable until verification', () => {
     const install = contentFor('content/docs/install.mdx');
+    const expectedInstallers = [
+      {
+        id: 'curl',
+        label: 'curl',
+        status: 'development',
+        message: 'Still in development. No supported install command yet.',
+      },
+      {
+        id: 'npm',
+        label: 'npm',
+        status: 'development',
+        message: 'Still in development. No supported install command yet.',
+      },
+      {
+        id: 'cargo',
+        label: 'cargo',
+        status: 'development',
+        message: 'Still in development. No supported install command yet.',
+      },
+      {
+        id: 'pip-uv',
+        label: 'pip / uv',
+        status: 'development',
+        message: 'Still in development. No supported install command yet.',
+      },
+      { id: 'brew', label: 'brew', status: 'coming-soon', message: 'Coming soon.' },
+    ] as const satisfies readonly Installer[];
 
-    expect(INSTALLERS).toHaveLength(5);
+    expect(INSTALLERS).toEqual(expectedInstallers);
     for (const installer of INSTALLERS) {
       expect(installer.status).not.toBe('available');
       expect(installer).not.toHaveProperty('command');
-      if (installer.status !== 'available') {
-        expect(installer.message).toBe('Not available yet.');
-      }
     }
     expect(install).toContain(
       'When an option is ready, this page will include its supported copy-and-paste command.',
@@ -274,6 +314,18 @@ describe('public claim firewall', () => {
 
   test('rejects forbidden or unsupported public claims', () => {
     expect(findPublicViolations(publicFiles, INSTALLERS)).toEqual([]);
+  });
+
+  test('allows the reviewed coming-soon Homebrew catalog message only', () => {
+    const approvedHomebrew = [
+      { id: 'brew', label: 'brew', status: 'coming-soon', message: 'Coming soon.' },
+    ] as const satisfies readonly Installer[];
+    const unapprovedCurl = [
+      { id: 'curl', label: 'curl', status: 'development', message: 'Coming soon.' },
+    ] as const satisfies readonly Installer[];
+
+    expect(findPublicViolations([], approvedHomebrew)).toEqual([]);
+    expect(findPublicViolations([], unapprovedCurl)).not.toEqual([]);
   });
 
   test.each([
