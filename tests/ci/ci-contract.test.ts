@@ -181,7 +181,8 @@ describe('CI and static-export contract', () => {
     expect(pnpmWorkspace).toContain("'minimatch@3.1.5>brace-expansion': 5.0.9");
     expect(pnpmWorkspace).toContain("'minimatch@10.2.6>brace-expansion': 5.0.9");
     expect(pnpmWorkspace).toContain("'minimatch@10.2.5': 10.2.6");
-    expect(pnpmWorkspace).toContain("'postcss': 8.5.18");
+    expect(pnpmWorkspace).toContain('  - postcss@8.5.23');
+    expect(pnpmWorkspace).toContain("'postcss': 8.5.23");
     expect(pnpmWorkspace).toContain("'sharp': 0.35.0");
     expect(pnpmWorkspace).toContain(
       'minimatch@3.1.5: patches/minimatch@3.1.5.patch',
