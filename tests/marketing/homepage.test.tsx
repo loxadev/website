@@ -3,10 +3,17 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { metadata } from '@/app/layout';
 import MarketingPage from '@/app/(marketing)/page';
+import { SiteFooter } from '@/components/site-footer';
 import { INSTALLERS } from '@/lib/installer-catalog';
+import { siteConfig, siteLinks } from '@/lib/site';
+
+vi.mock('next/font/local', () => ({
+  default: () => ({ variable: 'font-variable' }),
+}));
 
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -159,29 +166,30 @@ describe('MarketingPage', () => {
     expect(styles).not.toContain('.installerCopy > p');
   });
 
-  it('keeps metadata, navigation, and footer status future-facing', async () => {
-    const [site, layout, footer] = await Promise.all([
-      readFile(join(repositoryRoot, 'lib/site.ts'), 'utf8'),
-      readFile(join(repositoryRoot, 'app/layout.tsx'), 'utf8'),
-      readFile(join(repositoryRoot, 'components/site-footer.tsx'), 'utf8'),
-    ]);
+  it('publishes exact metadata and footer status through rendered public contracts', () => {
+    const title = 'Loxa | Open models on your hardware';
+    const description =
+      'Loxa is an open-source local AI node for running open models on hardware you control. It is in early development, with Apple Silicon support first.';
 
-    expect(site).toContain(
-      'Loxa is an open-source local AI node for running open models on hardware you control. It is in early development, with Apple Silicon support first.',
+    expect(siteConfig.description).toBe(description);
+    expect(siteLinks).toContainEqual({ label: 'Product', href: '/#product-direction' });
+    expect(metadata.title).toEqual({ default: title, template: '%s | Loxa' });
+    expect(metadata.description).toBe(description);
+    expect(metadata.openGraph).toMatchObject({ title, description });
+    expect(metadata.twitter).toMatchObject({ card: 'summary', title, description });
+
+    render(<SiteFooter />);
+
+    const footer = screen.getByRole('contentinfo');
+    const footerStatus = within(footer).getByText(
+      (_content, element) =>
+        element?.tagName === 'P' &&
+        element.textContent === 'Early development · Apple Silicon first',
     );
-    expect(site).toContain("{ label: 'Product', href: '/#product-direction' }");
-    expect(layout).toMatch(
-      /title:\s*\{\s*default: 'Loxa \| Open models on your hardware'/,
+    expect(footerStatus).toBeVisible();
+    expect(within(footer).getByRole('link', { name: 'Install status' })).toHaveAttribute(
+      'href',
+      '/docs/install',
     );
-    expect(layout).toMatch(
-      /openGraph:\s*\{[\s\S]*title: 'Loxa \| Open models on your hardware'/,
-    );
-    expect(layout).toMatch(
-      /twitter:\s*\{[\s\S]*title: 'Loxa \| Open models on your hardware'/,
-    );
-    expect(footer).toContain('Early development');
-    expect(footer).toContain('Apple Silicon first');
-    expect(footer).not.toContain('siteConfig.version');
-    expect(footer).toContain("{ label: 'Install status', href: '/docs/install' }");
   });
 });
