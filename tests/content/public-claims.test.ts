@@ -232,7 +232,9 @@ describe('public claim firewall', () => {
         expect(installer.message).toBe('Not available yet.');
       }
     }
-    expect(install).toContain('clean-machine verification');
+    expect(install).toContain(
+      'When an option is ready, this page will include its supported copy-and-paste command.',
+    );
     expect(install).not.toMatch(
       /curl\s|npm\s+(?:install|i)|npx\s+loxa|cargo\s+install|pip(?:3)?\s+install|uv\s+(?:tool\s+install|add)|brew\s+install/i,
     );
@@ -291,34 +293,43 @@ describe('public claim firewall', () => {
     expect(findPublicViolations([], canaryCatalog)).not.toEqual([]);
   });
 
-  test('keeps supervisor commands inside the labeled experimental page', () => {
-    const experimentalPath = 'content/docs/experimental/supervisor.mdx';
-    const experimental = contentFor(experimentalPath);
-    const experimentalLabel = 'Experimental · feature/supervisor at 14daf02';
-    const labelLocations = publicFiles
-      .filter(({ content }) => content.includes(experimentalLabel))
-      .map(({ path }) => path);
-    const nonExperimentalViolations = publicFiles
-      .filter(({ path }) => path !== experimentalPath)
-      .flatMap(({ path, content }) =>
-        ['run', 'ps', 'stop']
-          .filter((command) => new RegExp(`\\bloxa\\s+${command}\\b`, 'i').test(content))
-          .map((command) => `${path}: loxa ${command}`),
-      );
+  test('keeps retired branch-diary material out of public source', () => {
+    const retiredPaths = [
+      'content/docs/experimental/meta.json',
+      'content/docs/experimental/supervisor.mdx',
+    ];
+    const staleClaims = [/origin\/main@/i, /feature\/supervisor/i, /14daf02/i, /a59aec2/i];
 
-    expect(labelLocations).toEqual([experimentalPath]);
-    expect(experimental).toContain(experimentalLabel);
-    expect(experimental).toContain('loxa run <id>');
-    expect(experimental).toContain('loxa ps');
-    expect(experimental).toContain('loxa stop <target>');
-    expect(nonExperimentalViolations).toEqual([]);
+    expect(retiredPaths.map(contentFor)).toEqual(['', '']);
+    expect(
+      publicFiles.flatMap(({ path, content }) =>
+        staleClaims
+          .filter((pattern) => pattern.test(content))
+          .map((pattern) => `${path}: ${pattern}`),
+      ),
+    ).toEqual([]);
   });
 
   test('binds command facts to the CLI reference', () => {
     const cli = contentFor('content/docs/cli.mdx');
-    const required = ['loxa doctor', 'loxa list', 'loxa pull <id>', 'loxa rm <id>'];
+    const required = [
+      'loxa calibrate',
+      'loxa doctor',
+      'loxa pull <id> [--quant <quant>]',
+      'loxa list',
+      'loxa rm <id>',
+      'loxa load <id>',
+      'loxa unload',
+      'loxa chat [--chat <id>] <prompt>',
+      'loxa chats <subcommand>',
+      'loxa run <id> [--ctx <u32>] [--port <u16>] [--engine <backend>]',
+      'loxa serve [--model <id>] [--port <u16>] [--inference-port <u16>] [--engine <backend>]',
+      'loxa ps',
+      'loxa stop <target>',
+    ];
 
     expect(required.filter((fact) => !cli.includes(fact))).toEqual([]);
+    expect(cli).not.toMatch(/\bpi-acceptance\b/i);
   });
 
   test('binds registry rows and token variables to the models reference', () => {
@@ -330,6 +341,8 @@ describe('public claim firewall', () => {
       '| `qwen25-coder-7b-q8` | 7B | Q8_0 | apache-2.0 |',
       '| `gemma-3-4b-it-q4` | 4B | Q4_K_M | gemma |',
       '| `qwen3-14b-q4` | 14B | Q4_K_M | apache-2.0 |',
+      '| `gemma-4-e4b-it-q4` | E4B | Q4_K_M | apache-2.0 |',
+      '| `loxa` | 12B | UD-Q4_K_XL | apache-2.0 |',
     ];
     const requiredVariables = [
       'HF_TOKEN',
@@ -343,11 +356,18 @@ describe('public claim firewall', () => {
     expect(requiredVariables.filter((variable) => !models.includes(variable))).toEqual([]);
   });
 
-  test('binds version, toolchain, and license facts to project status', () => {
+  test('binds current development, platform, installation, and license facts to project status', () => {
     const project = contentFor('content/docs/project.mdx');
-    const required = ['0.1.0-dev', 'Rust 1.96.1', 'Apache License 2.0'];
+    const required = [
+      '| Development | Early development; first stable release underway |',
+      '| Platform focus | Apple Silicon first |',
+      '| Installation | No public install command yet |',
+      'Apache License 2.0',
+      'github.com/loxadev/loxa',
+    ];
 
     expect(required.filter((fact) => !project.includes(fact))).toEqual([]);
+    expect(project).not.toMatch(/manual stress|Rust 1\.96\.1|Windows|experimental/i);
   });
 });
 

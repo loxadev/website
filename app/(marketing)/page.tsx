@@ -116,7 +116,7 @@ export default function MarketingPage() {
         </div>
         <nav className={styles.docsLinks} aria-label="Documentation entry points">
           <Link href="/docs/install">
-            Install status
+            Installation
             <span aria-hidden="true">→</span>
           </Link>
           {docsLinks.map((link) => (

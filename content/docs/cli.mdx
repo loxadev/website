@@ -1,17 +1,26 @@
 ---
 title: CLI reference
-description: Commands available on the current public main branch.
+description: Ordinary Loxa CLI commands in the current public source.
 ---
 
-This reference is limited to public `origin/main@a59aec2` and project version
-`0.1.0-dev`.
+This reference summarizes the ordinary CLI commands in the current public source.
+Details may change before the first stable release.
 
 | Command | Argument | Purpose |
 | --- | --- | --- |
+| `loxa calibrate` | None | Run the current calibration workflow. |
 | `loxa doctor` | None | Report machine and local-tool observations. |
-| `loxa list` | None | List every built-in model and its local file status. |
-| `loxa pull <id>` | Required registry ID | Download or resume a registry model. |
-| `loxa rm <id>` | Required registry ID | Remove the model's final and partial files. |
+| `loxa pull <id> [--quant <quant>]` | Required registry ID | Download or resume a registry model, optionally selecting a quantization. |
+| `loxa list` | None | List registry models and their local file status. |
+| `loxa rm <id>` | Required registry ID | Remove a managed model file. |
+| `loxa load <id>` | Required registry ID | Ask a running node to load a model. |
+| `loxa unload` | None | Ask a running node to unload its current model. |
+| `loxa chat [--chat <id>] <prompt>` | Required prompt | Send a prompt to a running node, optionally continuing a chat. |
+| `loxa chats <subcommand>` | Required history subcommand | List, show, rename, delete, or clear chat history on a running node. |
+| `loxa run <id> [--ctx <u32>] [--port <u16>] [--engine <backend>]` | Required model | Start one managed model runtime. |
+| `loxa serve [--model <id>] [--port <u16>] [--inference-port <u16>] [--engine <backend>]` | Optional model | Start a managed node. |
+| `loxa ps` | None | Show managed sidecars. |
+| `loxa stop <target>` | Required model ID or `all` | Stop a managed sidecar. |
 
 ## `loxa doctor`
 
@@ -40,13 +49,13 @@ columns: `id`, `params`, `quant`, `size GB`, `license`, and `status`. Status is
 A completed listing exits `0`. An output error follows the common CLI error path and
 exits `1`.
 
-## `loxa pull <id>`
+## `loxa pull <id> [--quant <quant>]`
 
 ```text
-loxa pull <id>
+loxa pull <id> [--quant <quant>]
 ```
 
-`id` is required and must match the built-in registry. During a transfer, progress
+`id` is required and must match the registry. `--quant <quant>` is optional. During a transfer, progress
 includes the filename, transferred and total bytes, percentage, transfer rate, and
 estimated time remaining. On success, stdout contains the final model path and the
 command exits `0`.
@@ -60,7 +69,7 @@ An unknown ID prints the unknown ID and the valid registry IDs to stderr, then e
 loxa rm <id>
 ```
 
-`id` is required and must match the built-in registry. The command removes both the
+`id` is required and must match the registry. The command removes both the
 final model file and its `.part` file. It reports each removed path, or reports that
 nothing is present for the ID. Either successful result exits `0`.
 

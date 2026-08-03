@@ -187,7 +187,7 @@ describe('MarketingPage', () => {
         element.textContent === 'Early development · Apple Silicon first',
     );
     expect(footerStatus).toBeVisible();
-    expect(within(footer).getByRole('link', { name: 'Install status' })).toHaveAttribute(
+    expect(within(footer).getByRole('link', { name: 'Installation' })).toHaveAttribute(
       'href',
       '/docs/install',
     );

@@ -1,34 +1,22 @@
 ---
 title: Loxa documentation
-description: Documentation for Loxa, an open-source local AI node that is still in development.
+description: Reference for Loxa, an open-source local AI node in early development.
 ---
 
-Loxa is **still in development** at `0.1.0-dev`. This documentation describes the
-public source as it exists today, not a published release.
+Loxa is in early development, with Apple Silicon support first. The first stable release is underway.
 
-The current main branch includes four CLI commands:
+These pages describe the CLI and model-management features in the current public source. Details may change before the first stable release.
 
-- `loxa doctor` inspects the current machine.
-- `loxa list` lists every built-in model and its local file status.
-- `loxa pull <id>` downloads a model from the built-in registry.
-- `loxa rm <id>` removes a managed model file.
-
-There is no supported public installer yet. See [Install status](/docs/install) for
-the planned Bash, npm, Cargo, pip/uv, and Homebrew paths.
+Installation options are being prepared. No public install command is available yet; see [Installation](/docs/install).
 
 ## Reference
 
-- [Install status](/docs/install) records planned installation channels and their current status.
+- [Installation](/docs/install) records the current installation status.
 - [Doctor](/docs/doctor) describes the machine observations the command reports.
 - [Models](/docs/models) covers registry IDs, downloads, verification, and removal.
-- [CLI reference](/docs/cli) documents the commands in the current main branch.
+- [CLI reference](/docs/cli) documents the commands in the current public source.
 - [Troubleshooting](/docs/troubleshooting) maps known errors to the relevant checks.
-- [Project](/docs/project) records version, license, and release status.
-
-## Experimental
-
-[Experimental work](/docs/experimental/supervisor) is labeled separately and is not
-part of the current main branch or a tagged release.
+- [Project](/docs/project) records development, platform, installation, license, and source status.
 
 The [public source](https://github.com/loxadev/loxa) is available under the
 [Apache License 2.0](https://github.com/loxadev/loxa/blob/main/LICENSE).

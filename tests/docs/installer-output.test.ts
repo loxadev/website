@@ -6,12 +6,12 @@ vi.mock('@/lib/source', () => {
     path: 'install.mdx',
     url: '/docs/install',
     data: {
-      title: 'Install status',
-      description: 'Planned installation channels and their current status.',
+      title: 'Installation',
+      description: 'Installation options for Loxa in early development.',
       getText: vi
         .fn()
         .mockResolvedValue(
-          '## Planned installation channels\n\n<InstallStatusList />\n\nRelease gate.',
+          '## Installation options\n\n<InstallStatusList />\n\nInstallation options are being prepared.',
         ),
     },
   };
