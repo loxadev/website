@@ -186,6 +186,18 @@ describe('current public documentation', () => {
     expect(normalize(cli)).toContain(
       'For a registry ID, the registry path ignores `--quant`.',
     );
+    expect(normalize(cli)).toContain(
+      'When no managed node is running, it prints one row for each registry entry with these columns: `id`, `params`, `quant`, `size GB`, `license`, and `status`.',
+    );
+    expect(normalize(cli)).toContain(
+      'When a managed node is running, it instead prints one row for each model with these columns: `id`, `status`, `compatible`, and `engine`.',
+    );
+    expect(normalize(cli)).toContain(
+      'When no managed node is running, the command removes both the final model file and its `.part` file.',
+    );
+    expect(normalize(cli)).toContain(
+      'When a managed node is running, `loxa rm` refuses the removal and tells you to stop the node first.',
+    );
     expect(tableRows(cli)).toContainEqual([
       '`loxa run <id> [--ctx <u32>] [--port <u16>] [--engine <backend>]`',
       'Required model',

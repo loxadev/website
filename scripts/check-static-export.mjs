@@ -24,7 +24,11 @@ const llmRoutes = [
   '/llms-full.txt',
   '/llms.mdx/docs/index',
   '/llms.mdx/docs/install',
+  '/llms.mdx/docs/doctor',
+  '/llms.mdx/docs/models',
   '/llms.mdx/docs/cli',
+  '/llms.mdx/docs/troubleshooting',
+  '/llms.mdx/docs/project',
 ];
 const retiredLlmRoutes = ['/llms.mdx/docs/experimental/supervisor'];
 const nextServerDirectory = '_next/server';

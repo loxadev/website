@@ -24,7 +24,11 @@ const llmPaths = [
   'llms-full.txt',
   'llms.mdx/docs/index',
   'llms.mdx/docs/install',
+  'llms.mdx/docs/doctor',
+  'llms.mdx/docs/models',
   'llms.mdx/docs/cli',
+  'llms.mdx/docs/troubleshooting',
+  'llms.mdx/docs/project',
 ];
 
 const validSearchPayload = {
@@ -229,6 +233,29 @@ describe('CI and static-export contract', () => {
     expect(staticCheck).toContain('language');
   });
 
+  test.each([
+    ['doctor', '/llms.mdx/docs/doctor'],
+    ['models', '/llms.mdx/docs/models'],
+    ['troubleshooting', '/llms.mdx/docs/troubleshooting'],
+    ['project', '/llms.mdx/docs/project'],
+  ])('rejects a missing required per-page Markdown route for %s', async (_label, route) => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      await rm(join(fixtureDirectory, 'out', route.slice(1)));
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining('missing document for ' + route),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
   test('rejects runtime paths and scans every public textual artifact', () => {
     expect(staticCheck).toContain('middleware');
     expect(staticCheck).toContain('server-reference-manifest');
@@ -275,7 +302,7 @@ describe('CI and static-export contract', () => {
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
       ).resolves.toMatchObject({
-        stdout: expect.stringContaining('14 routes checked'),
+        stdout: expect.stringContaining('18 routes checked'),
       });
 
       const forbiddenBundle = join(
@@ -305,7 +332,7 @@ describe('CI and static-export contract', () => {
 
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
-      ).resolves.toMatchObject({ stdout: expect.stringContaining('14 routes checked') });
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('18 routes checked') });
 
       const indexPath = join(outputDirectory, 'index.html');
       await writeFile(
@@ -318,7 +345,7 @@ describe('CI and static-export contract', () => {
 
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
-      ).resolves.toMatchObject({ stdout: expect.stringContaining('14 routes checked') });
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('18 routes checked') });
 
       const faviconPath = join(outputDirectory, 'favicon.ico');
       await rm(faviconPath);
@@ -460,7 +487,7 @@ describe('CI and static-export contract', () => {
 
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
-      ).resolves.toMatchObject({ stdout: expect.stringContaining('14 routes checked') });
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('18 routes checked') });
     } finally {
       await rm(fixtureDirectory, { recursive: true, force: true });
     }

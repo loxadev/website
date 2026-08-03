@@ -11,8 +11,8 @@ Details may change before the first stable release.
 | `loxa calibrate` | None | Run the current calibration workflow. |
 | `loxa doctor` | None | Report machine and local-tool observations. |
 | `loxa pull <id-or-reference> [--quant <quant>]` | Required built-in/user registry ID or Hugging Face reference | Download a registry model or resolve and download a Hugging Face model. |
-| `loxa list` | None | List registry models and their local file status. |
-| `loxa rm <id>` | Required registry ID | Remove a managed model file. |
+| `loxa list` | None | List local registry files when no node is running, or running-node models when one is. |
+| `loxa rm <id>` | Required registry ID | Remove a managed model file when no node is running; otherwise, stop the node first. |
 | `loxa load <id>` | Required registry ID | Ask a running node to load a model. |
 | `loxa unload` | None | Ask a running node to unload its current model. |
 | `loxa chat [--chat <id>] <prompt>` | Required prompt | Send a prompt to a running node, optionally continuing a chat. |
@@ -41,10 +41,13 @@ exits `1`. See [Doctor](/docs/doctor) for the observation boundaries.
 loxa list
 ```
 
-The command takes no arguments. It prints one row for each registry entry with these
-columns: `id`, `params`, `quant`, `size GB`, `license`, and `status`. Status is
-`downloaded`, `partial`, or `not downloaded`, based on the final and `.part` files in
-`~/.loxa/models`.
+The command takes no arguments. When no managed node is running, it prints one row for
+each registry entry with these columns: `id`, `params`, `quant`, `size GB`, `license`,
+and `status`. Status is `downloaded`, `partial`, or `not downloaded`, based on the final
+and `.part` files in `~/.loxa/models`.
+
+When a managed node is running, it instead prints one row for each model with these
+columns: `id`, `status`, `compatible`, and `engine`.
 
 A completed listing exits `0`. An output error follows the common CLI error path and
 exits `1`.
@@ -79,9 +82,13 @@ to stderr, then exits `1`.
 loxa rm <id>
 ```
 
-`id` is required and must match an entry in the built-in or user registry. The command
-removes both the final model file and its `.part` file. It reports each removed path,
-or reports that nothing is present for the ID. Either successful result exits `0`.
+`id` is required and must match an entry in the built-in or user registry. When no
+managed node is running, the command removes both the final model file and its `.part`
+file. It reports each removed path, or reports that nothing is present for the ID. Either
+successful result exits `0`.
+
+When a managed node is running, `loxa rm` refuses the removal and tells you to stop the
+node first. It exits `1`.
 
 An unknown ID prints the unknown ID and the valid registry IDs to stderr, then exits
 `1`. A filesystem or output error follows the common CLI error path and exits `1`.
