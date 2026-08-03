@@ -177,7 +177,9 @@ describe('CI and static-export contract', () => {
     expect(packageManifest).toContain('"next": "16.2.12"');
     expect(packageManifest).toContain('"eslint-config-next": "16.2.12"');
     expect(pnpmWorkspace).toContain("'js-yaml': 5.2.2");
-    expect(pnpmWorkspace).toContain("'minimatch@3.1.5>brace-expansion': 5.0.8");
+    expect(pnpmWorkspace).toContain('  - brace-expansion@5.0.9');
+    expect(pnpmWorkspace).toContain("'minimatch@3.1.5>brace-expansion': 5.0.9");
+    expect(pnpmWorkspace).toContain("'minimatch@10.2.6>brace-expansion': 5.0.9");
     expect(pnpmWorkspace).toContain("'minimatch@10.2.5': 10.2.6");
     expect(pnpmWorkspace).toContain("'postcss': 8.5.18");
     expect(pnpmWorkspace).toContain("'sharp': 0.35.0");
