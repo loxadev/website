@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { promisify } from 'node:util';
@@ -9,6 +9,7 @@ import { describe, expect, test } from 'vitest';
 const execFileAsync = promisify(execFile);
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const staticCheckPath = join(repositoryRoot, 'scripts/check-static-export.mjs');
+const publicHeadersPath = join(repositoryRoot, 'public/_headers');
 const documentPaths = [
   'index.html',
   'docs.html',
@@ -30,6 +31,12 @@ const llmPaths = [
   'llms.mdx/docs/troubleshooting',
   'llms.mdx/docs/project',
 ];
+const markdownHeaders =
+  '/llms.mdx/docs/*\n' +
+  '  Content-Type: text/markdown; charset=utf-8\n' +
+  '  Content-Disposition: inline\n';
+const searchJsonHeaders =
+  '/api/search\n' + '  Content-Type: application/json; charset=utf-8\n';
 
 const validSearchPayload = {
   type: 'advanced',
@@ -76,7 +83,7 @@ async function writeStaticFixture(
   await mkdir(outputDirectory, { recursive: true });
   await writeFile(
     join(outputDirectory, '_headers'),
-    '/llms.mdx/docs/*\n  Content-Type: text/markdown; charset=utf-8\n  Content-Disposition: inline\n',
+    searchJsonHeaders + '\n' + markdownHeaders,
   );
 
   for (const documentPath of documentPaths) {
@@ -170,9 +177,12 @@ describe('CI and static-export contract', () => {
     expect(packageManifest).toContain('"next": "16.2.12"');
     expect(packageManifest).toContain('"eslint-config-next": "16.2.12"');
     expect(pnpmWorkspace).toContain("'js-yaml': 5.2.2");
-    expect(pnpmWorkspace).toContain("'minimatch@3.1.5>brace-expansion': 5.0.8");
+    expect(pnpmWorkspace).toContain('  - brace-expansion@5.0.9');
+    expect(pnpmWorkspace).toContain("'minimatch@3.1.5>brace-expansion': 5.0.9");
+    expect(pnpmWorkspace).toContain("'minimatch@10.2.6>brace-expansion': 5.0.9");
     expect(pnpmWorkspace).toContain("'minimatch@10.2.5': 10.2.6");
-    expect(pnpmWorkspace).toContain("'postcss': 8.5.18");
+    expect(pnpmWorkspace).toContain('  - postcss@8.5.23');
+    expect(pnpmWorkspace).toContain("'postcss': 8.5.23");
     expect(pnpmWorkspace).toContain("'sharp': 0.35.0");
     expect(pnpmWorkspace).toContain(
       'minimatch@3.1.5: patches/minimatch@3.1.5.patch',
@@ -317,6 +327,67 @@ describe('CI and static-export contract', () => {
       ).rejects.toMatchObject({
         code: 1,
         stderr: expect.stringContaining('unsupported runtime artifact'),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
+  test('accepts the checked-in JSON header contract for the static search index', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      await copyFile(
+        publicHeadersPath,
+        join(fixtureDirectory, 'out', '_headers'),
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('18 routes checked') });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
+  test('rejects a static search payload without a JSON header rule', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      await writeFile(join(fixtureDirectory, 'out', '_headers'), markdownHeaders);
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining(
+          'missing Cloudflare search JSON header rule: /api/search',
+        ),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
+  test('rejects a static search header without the UTF-8 JSON Content-Type', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      await writeFile(
+        join(fixtureDirectory, 'out', '_headers'),
+        '/api/search\n  Content-Type: application/json\n\n' + markdownHeaders,
+      );
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining(
+          'missing Cloudflare search JSON header rule: Content-Type: application/json; charset=utf-8',
+        ),
       });
     } finally {
       await rm(fixtureDirectory, { recursive: true, force: true });

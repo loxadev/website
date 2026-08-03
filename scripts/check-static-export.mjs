@@ -324,7 +324,23 @@ async function requireSearchPayload() {
   );
 }
 
-async function requireMarkdownHeaders() {
+function hasCloudflareHeaderRule(headers, route, header) {
+  let currentRoute = null;
+
+  for (const line of headers.split(/\r?\n/)) {
+    if (line.trim().length === 0) {
+      currentRoute = null;
+    } else if (!/^\s/.test(line)) {
+      currentRoute = line;
+    } else if (currentRoute === route && line.trim() === header) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+async function requireCloudflareHeaders() {
   const headersPath = join(outputDirectory, '_headers');
 
   if (!(await isFile(headersPath))) {
@@ -342,6 +358,15 @@ async function requireMarkdownHeaders() {
     if (!headers.includes(line)) {
       throw new Error('missing Cloudflare Markdown header rule: ' + line);
     }
+  }
+
+  if (!headers.split(/\r?\n/).includes(searchRoute)) {
+    throw new Error('missing Cloudflare search JSON header rule: ' + searchRoute);
+  }
+
+  const jsonContentType = 'Content-Type: application/json; charset=utf-8';
+  if (!hasCloudflareHeaderRule(headers, searchRoute, jsonContentType)) {
+    throw new Error('missing Cloudflare search JSON header rule: ' + jsonContentType);
   }
 }
 
@@ -398,7 +423,7 @@ async function main() {
   );
   await Promise.all(llmRoutes.map(requireDocument));
   await requireStaticIcons(homeDocument);
-  await requireMarkdownHeaders();
+  await requireCloudflareHeaders();
   const searchPayload = await requireSearchPayload();
   const emittedFiles = await collectFiles(outputDirectory);
 
