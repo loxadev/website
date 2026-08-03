@@ -298,7 +298,13 @@ describe('public claim firewall', () => {
       'content/docs/experimental/meta.json',
       'content/docs/experimental/supervisor.mdx',
     ];
-    const staleClaims = [/origin\/main@/i, /feature\/supervisor/i, /14daf02/i, /a59aec2/i];
+    const staleClaims = [
+      /origin\/main@/i,
+      /feature\/supervisor/i,
+      /14daf02/i,
+      /a59aec2/i,
+      /current public main branch/i,
+    ];
 
     expect(retiredPaths.map(contentFor)).toEqual(['', '']);
     expect(
@@ -312,10 +318,11 @@ describe('public claim firewall', () => {
 
   test('binds command facts to the CLI reference', () => {
     const cli = contentFor('content/docs/cli.mdx');
+    const normalizedCli = cli.replace(/\s+/g, ' ');
     const required = [
       'loxa calibrate',
       'loxa doctor',
-      'loxa pull <id> [--quant <quant>]',
+      'loxa pull <id-or-reference> [--quant <quant>]',
       'loxa list',
       'loxa rm <id>',
       'loxa load <id>',
@@ -327,8 +334,15 @@ describe('public claim firewall', () => {
       'loxa ps',
       'loxa stop <target>',
     ];
+    const pullFacts = [
+      'built-in or user registry ID',
+      '`owner/repo` or `hf://owner/repo[@revision][:filename]`',
+      '`--quant <quant>` participates only in Hugging Face resolution',
+      'For a registry ID, the registry path ignores `--quant`.',
+    ];
 
     expect(required.filter((fact) => !cli.includes(fact))).toEqual([]);
+    expect(pullFacts.filter((fact) => !normalizedCli.includes(fact))).toEqual([]);
     expect(cli).not.toMatch(/\bpi-acceptance\b/i);
   });
 

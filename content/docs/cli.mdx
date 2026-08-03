@@ -10,7 +10,7 @@ Details may change before the first stable release.
 | --- | --- | --- |
 | `loxa calibrate` | None | Run the current calibration workflow. |
 | `loxa doctor` | None | Report machine and local-tool observations. |
-| `loxa pull <id> [--quant <quant>]` | Required registry ID | Download or resume a registry model, optionally selecting a quantization. |
+| `loxa pull <id-or-reference> [--quant <quant>]` | Required built-in/user registry ID or Hugging Face reference | Download a registry model or resolve and download a Hugging Face model. |
 | `loxa list` | None | List registry models and their local file status. |
 | `loxa rm <id>` | Required registry ID | Remove a managed model file. |
 | `loxa load <id>` | Required registry ID | Ask a running node to load a model. |
@@ -49,19 +49,29 @@ columns: `id`, `params`, `quant`, `size GB`, `license`, and `status`. Status is
 A completed listing exits `0`. An output error follows the common CLI error path and
 exits `1`.
 
-## `loxa pull <id> [--quant <quant>]`
+## `loxa pull <id-or-reference> [--quant <quant>]`
 
 ```text
-loxa pull <id> [--quant <quant>]
+loxa pull <id-or-reference> [--quant <quant>]
 ```
 
-`id` is required and must match the registry. `--quant <quant>` is optional. During a transfer, progress
-includes the filename, transferred and total bytes, percentage, transfer rate, and
-estimated time remaining. On success, stdout contains the final model path and the
-command exits `0`.
+The required argument is either a built-in or user registry ID, or a Hugging Face
+reference. A Hugging Face reference is `owner/repo` or
+`hf://owner/repo[@revision][:filename]`.
 
-An unknown ID prints the unknown ID and the valid registry IDs to stderr, then exits
-`1`. A download failure prints the ID and failure reason to stderr, then exits `1`.
+`--quant <quant>` participates only in Hugging Face resolution, where it selects a
+matching verified GGUF. For a registry ID, the registry path ignores `--quant`. When
+a node is already running, `pull` accepts only known registry recipe IDs; stop it
+before resolving a Hugging Face reference or custom quantization.
+
+During a transfer, progress includes the filename, transferred and total bytes,
+percentage, transfer rate, and estimated time remaining. On success, stdout contains
+the final model path and the command exits `0`.
+
+For a registry ID, an unknown ID prints the unknown ID and the valid registry IDs to
+stderr, then exits `1`. Hugging Face reference resolution errors are reported before
+a download begins. A download failure prints the selected model ID and failure reason
+to stderr, then exits `1`.
 
 ## `loxa rm <id>`
 
@@ -69,9 +79,9 @@ An unknown ID prints the unknown ID and the valid registry IDs to stderr, then e
 loxa rm <id>
 ```
 
-`id` is required and must match the registry. The command removes both the
-final model file and its `.part` file. It reports each removed path, or reports that
-nothing is present for the ID. Either successful result exits `0`.
+`id` is required and must match an entry in the built-in or user registry. The command
+removes both the final model file and its `.part` file. It reports each removed path,
+or reports that nothing is present for the ID. Either successful result exits `0`.
 
 An unknown ID prints the unknown ID and the valid registry IDs to stderr, then exits
 `1`. A filesystem or output error follows the common CLI error path and exits `1`.

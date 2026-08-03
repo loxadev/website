@@ -129,6 +129,31 @@ describe('CI and static-export contract', () => {
     }
   });
 
+  test('rejects a retired experimental Markdown route', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      const retiredRoute = join(
+        fixtureDirectory,
+        'out/llms.mdx/docs/experimental/supervisor',
+      );
+      await mkdir(dirname(retiredRoute), { recursive: true });
+      await writeFile(retiredRoute, '# Retired route');
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining(
+          'retired static route: /llms.mdx/docs/experimental/supervisor',
+        ),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
   test('allows only reviewed dependency build scripts', () => {
     expect(pnpmWorkspace).toContain('allowBuilds:');
     expect(pnpmWorkspace).toContain("'esbuild@0.28.1': true");

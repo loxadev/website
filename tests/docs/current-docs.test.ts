@@ -20,7 +20,7 @@ const currentDocsRoutes = [
 const currentCliCommands = [
   'loxa calibrate',
   'loxa doctor',
-  'loxa pull <id> [--quant <quant>]',
+  'loxa pull <id-or-reference> [--quant <quant>]',
   'loxa list',
   'loxa rm <id>',
   'loxa load <id>',
@@ -157,10 +157,35 @@ describe('current public documentation', () => {
     ]);
   });
 
+  test('uses branch-neutral troubleshooting metadata', async () => {
+    const troubleshooting = pageFor(await docs(), ['troubleshooting']);
+
+    expect(troubleshooting.description).toBe(
+      'Evidence-backed checks for common public CLI errors.',
+    );
+  });
+
   test('documents the current ordinary CLI surface without acceptance tooling', async () => {
     const cli = pageFor(await docs(), ['cli']).text;
 
     expect(currentCliCommands.filter((command) => !cli.includes(command))).toEqual([]);
+    expect(tableRows(cli)).toContainEqual([
+      '`loxa pull <id-or-reference> [--quant <quant>]`',
+      'Required built-in/user registry ID or Hugging Face reference',
+      'Download a registry model or resolve and download a Hugging Face model.',
+    ]);
+    expect(normalize(cli)).toContain(
+      'The required argument is either a built-in or user registry ID, or a Hugging Face reference.',
+    );
+    expect(normalize(cli)).toContain(
+      '`owner/repo` or `hf://owner/repo[@revision][:filename]`.',
+    );
+    expect(normalize(cli)).toContain(
+      '`--quant <quant>` participates only in Hugging Face resolution, where it selects a matching verified GGUF.',
+    );
+    expect(normalize(cli)).toContain(
+      'For a registry ID, the registry path ignores `--quant`.',
+    );
     expect(tableRows(cli)).toContainEqual([
       '`loxa run <id> [--ctx <u32>] [--port <u16>] [--engine <backend>]`',
       'Required model',

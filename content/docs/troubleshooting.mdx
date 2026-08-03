@@ -1,17 +1,20 @@
 ---
 title: Troubleshooting
-description: Evidence-backed checks for errors on the current public main branch.
+description: Evidence-backed checks for common public CLI errors.
 ---
 
 This page covers errors from the current public CLI.
 
 ## Unknown model ID
 
-`loxa pull <id>` and `loxa rm <id>` reject an ID that is not in the built-in registry.
-The error includes `unknown model id`, followed by the valid IDs.
+`loxa rm <id>` rejects an ID that is not in the built-in or user registry. `loxa pull`
+reports the same error only when its argument takes the registry-ID path; a Hugging
+Face reference uses a separate resolution path.
 
-Run `loxa list` and use an ID exactly as printed. The full registry is also listed on
-the [Models](/docs/models#registry) page.
+If you meant a registry model, run `loxa list` and use an ID exactly as printed. The
+full built-in registry is also listed on the [Models](/docs/models#registry) page. If
+you meant a Hugging Face model, use the reference forms in the
+[CLI reference](/docs/cli) instead.
 
 ## Authentication required or Hugging Face 403
 
