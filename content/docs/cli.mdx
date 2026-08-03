@@ -1,17 +1,26 @@
 ---
 title: CLI reference
-description: Commands available on the current public main branch.
+description: Ordinary Loxa CLI commands in the current public source.
 ---
 
-This reference is limited to public `origin/main@a59aec2` and project version
-`0.1.0-dev`.
+This reference summarizes the ordinary CLI commands in the current public source.
+Details may change before the first stable release.
 
 | Command | Argument | Purpose |
 | --- | --- | --- |
+| `loxa calibrate` | None | Run the current calibration workflow. |
 | `loxa doctor` | None | Report machine and local-tool observations. |
-| `loxa list` | None | List every built-in model and its local file status. |
-| `loxa pull <id>` | Required registry ID | Download or resume a registry model. |
-| `loxa rm <id>` | Required registry ID | Remove the model's final and partial files. |
+| `loxa pull <id-or-reference> [--quant <quant>]` | Required built-in/user registry ID or Hugging Face reference | Download a registry model or resolve and download a Hugging Face model. |
+| `loxa list` | None | List local registry files when no node is running, or running-node models when one is. |
+| `loxa rm <id>` | Required registry ID | Remove a managed model file when no node is running; otherwise, stop the node first. |
+| `loxa load <id>` | Required registry ID | Ask a running node to load a model. |
+| `loxa unload` | None | Ask a running node to unload its current model. |
+| `loxa chat [--chat <id>] <prompt>` | Required prompt | Send a prompt to a running node, optionally continuing a chat. |
+| `loxa chats <subcommand>` | Required history subcommand | List, show, rename, delete, or clear chat history on a running node. |
+| `loxa run <id> [--ctx <u32>] [--port <u16>] [--engine <backend>]` | Required model | Start one managed model runtime. |
+| `loxa serve [--model <id>] [--port <u16>] [--inference-port <u16>] [--engine <backend>]` | Optional model | Start a managed node. |
+| `loxa ps` | None | Show managed sidecars. |
+| `loxa stop <target>` | Required model ID or `all` | Stop a managed sidecar. |
 
 ## `loxa doctor`
 
@@ -32,27 +41,40 @@ exits `1`. See [Doctor](/docs/doctor) for the observation boundaries.
 loxa list
 ```
 
-The command takes no arguments. It prints one row for each registry entry with these
-columns: `id`, `params`, `quant`, `size GB`, `license`, and `status`. Status is
-`downloaded`, `partial`, or `not downloaded`, based on the final and `.part` files in
-`~/.loxa/models`.
+The command takes no arguments. When no managed node is running, it prints one row for
+each registry entry with these columns: `id`, `params`, `quant`, `size GB`, `license`,
+and `status`. Status is `downloaded`, `partial`, or `not downloaded`, based on the final
+and `.part` files in `~/.loxa/models`.
+
+When a managed node is running, it instead prints one row for each model with these
+columns: `id`, `status`, `compatible`, and `engine`.
 
 A completed listing exits `0`. An output error follows the common CLI error path and
 exits `1`.
 
-## `loxa pull <id>`
+## `loxa pull <id-or-reference> [--quant <quant>]`
 
 ```text
-loxa pull <id>
+loxa pull <id-or-reference> [--quant <quant>]
 ```
 
-`id` is required and must match the built-in registry. During a transfer, progress
-includes the filename, transferred and total bytes, percentage, transfer rate, and
-estimated time remaining. On success, stdout contains the final model path and the
-command exits `0`.
+The required argument is either a built-in or user registry ID, or a Hugging Face
+reference. A Hugging Face reference is `owner/repo` or
+`hf://owner/repo[@revision][:filename]`.
 
-An unknown ID prints the unknown ID and the valid registry IDs to stderr, then exits
-`1`. A download failure prints the ID and failure reason to stderr, then exits `1`.
+`--quant <quant>` participates only in Hugging Face resolution, where it selects a
+matching verified GGUF. For a registry ID, the registry path ignores `--quant`. When
+a node is already running, `pull` accepts only known registry recipe IDs; stop it
+before resolving a Hugging Face reference or custom quantization.
+
+During a transfer, progress includes the filename, transferred and total bytes,
+percentage, transfer rate, and estimated time remaining. On success, stdout contains
+the final model path and the command exits `0`.
+
+For a registry ID, an unknown ID prints the unknown ID and the valid registry IDs to
+stderr, then exits `1`. Hugging Face reference resolution errors are reported before
+a download begins. A download failure prints the selected model ID and failure reason
+to stderr, then exits `1`.
 
 ## `loxa rm <id>`
 
@@ -60,9 +82,13 @@ An unknown ID prints the unknown ID and the valid registry IDs to stderr, then e
 loxa rm <id>
 ```
 
-`id` is required and must match the built-in registry. The command removes both the
-final model file and its `.part` file. It reports each removed path, or reports that
-nothing is present for the ID. Either successful result exits `0`.
+`id` is required and must match an entry in the built-in or user registry. When no
+managed node is running, the command removes both the final model file and its `.part`
+file. It reports each removed path, or reports that nothing is present for the ID. Either
+successful result exits `0`.
+
+When a managed node is running, `loxa rm` refuses the removal and tells you to stop the
+node first. It exits `1`.
 
 An unknown ID prints the unknown ID and the valid registry IDs to stderr, then exits
 `1`. A filesystem or output error follows the common CLI error path and exits `1`.

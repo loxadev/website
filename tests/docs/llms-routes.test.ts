@@ -1,7 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
+
+import { getLlmText, type DocsPage } from '@/lib/get-llm-text';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (path: string) => readFile(join(root, path), 'utf8');
@@ -18,18 +20,22 @@ describe('AI-readable documentation routes', () => {
     expect(route).toContain('canonicalOrigin');
   });
 
-  test('aggregates stable processed Markdown only', async () => {
-    const [helper, route] = await Promise.all([
-      read('lib/get-llm-text.ts'),
-      read('app/llms-full.txt/route.ts'),
-    ]);
-    expect(helper).toContain("getText('processed')");
-    expect(helper).toContain("page.slugs[0] === 'experimental'");
-    expect(route).toContain('filter(isStablePage)');
-    expect(route).toContain("dynamic = 'force-static'");
+  test('does not publish a retired experimental maturity label in processed Markdown', async () => {
+    const page = {
+      slugs: ['experimental'],
+      path: 'experimental/supervisor.mdx',
+      url: '/docs/experimental/supervisor',
+      data: {
+        title: 'Supervisor',
+        description: 'Retired branch-diary fixture.',
+        getText: vi.fn().mockResolvedValue('# Supervisor\n'),
+      },
+    } as unknown as DocsPage;
+
+    await expect(getLlmText(page)).resolves.not.toContain('Maturity: Experimental');
   });
 
-  test('pre-renders every page and labels experimental output', async () => {
+  test('pre-renders every current documentation page as Markdown', async () => {
     const [helper, route] = await Promise.all([
       read('lib/get-llm-text.ts'),
       read('app/llms.mdx/docs/[[...slug]]/route.ts'),
@@ -38,7 +44,6 @@ describe('AI-readable documentation routes', () => {
     expect(route).toContain('dynamicParams = false');
     expect(route).toContain("'text/markdown; charset=utf-8'");
     expect(route).toContain("status: 404");
-    expect(helper).toContain('Maturity: Experimental');
     expect(helper).toContain('/edit/main/');
     expect(helper).not.toMatch(/process\.env|readFile|private-fixture-marker|\.superpowers/);
   });

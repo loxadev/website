@@ -14,8 +14,9 @@ const documentRoutes = [
   '/docs/cli',
   '/docs/troubleshooting',
   '/docs/project',
-  '/docs/experimental/supervisor',
 ];
+
+const retiredDocumentRoutes = ['/docs/experimental/supervisor'];
 
 const searchRoute = '/api/search';
 const llmRoutes = [
@@ -23,9 +24,13 @@ const llmRoutes = [
   '/llms-full.txt',
   '/llms.mdx/docs/index',
   '/llms.mdx/docs/install',
+  '/llms.mdx/docs/doctor',
+  '/llms.mdx/docs/models',
   '/llms.mdx/docs/cli',
-  '/llms.mdx/docs/experimental/supervisor',
+  '/llms.mdx/docs/troubleshooting',
+  '/llms.mdx/docs/project',
 ];
+const retiredLlmRoutes = ['/llms.mdx/docs/experimental/supervisor'];
 const nextServerDirectory = '_next/server';
 const staticIcons = [
   { path: '/favicon.ico', type: 'image/x-icon' },
@@ -143,6 +148,16 @@ async function requireDocument(route) {
       '; checked ' +
       candidates.map(displayPath).join(', '),
   );
+}
+
+async function requireAbsentDocument(route) {
+  const candidates = documentCandidates(route);
+
+  for (const candidate of candidates) {
+    if (await isFile(candidate)) {
+      throw new Error('retired static route: ' + route + '; found ' + displayPath(candidate));
+    }
+  }
 }
 
 function staticIconLinks(homeDocument) {
@@ -378,6 +393,9 @@ async function main() {
   }
 
   const [homeDocument] = await Promise.all(documentRoutes.map(requireDocument));
+  await Promise.all(
+    [...retiredDocumentRoutes, ...retiredLlmRoutes].map(requireAbsentDocument),
+  );
   await Promise.all(llmRoutes.map(requireDocument));
   await requireStaticIcons(homeDocument);
   await requireMarkdownHeaders();

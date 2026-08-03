@@ -2,7 +2,7 @@ export const siteConfig = {
   name: 'Loxa',
   url: 'https://loxa.dev',
   description:
-    'Loxa is being built as an open-source local AI node for running open models on hardware you control. Still in development and Apple Silicon first.',
+    'Loxa is an open-source local AI node for running open models on hardware you control. It is in early development, with Apple Silicon support first.',
   version: '0.1.0-dev',
   sourceUrl: 'https://github.com/loxadev/loxa',
   licenseUrl: 'https://github.com/loxadev/loxa/blob/main/LICENSE',

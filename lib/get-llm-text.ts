@@ -8,14 +8,6 @@ export const canonicalOrigin = 'https://loxa.dev';
 
 export type DocsPage = ReturnType<typeof source.getPages>[number];
 
-export function isExperimentalPage(page: DocsPage): boolean {
-  return page.slugs[0] === 'experimental';
-}
-
-export function isStablePage(page: DocsPage): boolean {
-  return !isExperimentalPage(page);
-}
-
 export function markdownUrlForPage(page: DocsPage): string {
   return page.slugs.length === 0 ? '/llms.mdx/docs/index' : `/llms.mdx${page.url}`;
 }
@@ -32,7 +24,6 @@ export async function getLlmText(page: DocsPage): Promise<string> {
     `# ${title}`,
     description ? `> ${description}` : undefined,
     `Canonical: ${new URL(page.url, canonicalOrigin)}`,
-    isExperimentalPage(page) ? 'Maturity: Experimental' : undefined,
   ].filter(Boolean);
 
   // The processed document already contains its frontmatter title as a heading in

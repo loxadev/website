@@ -180,7 +180,9 @@ describe('static documentation platform', () => {
     expect(meta.pages).toContain('install');
     expect(staticCheckText).toContain("'/docs/install'");
     expect(staticCheckText).toContain("'/llms.mdx/docs/install'");
-    expect(installText).toContain('There is no supported public installer yet.');
+    expect(installText).toContain(
+      'Installation options are being prepared. No public install command is available yet.',
+    );
     expect(installText).toContain(
       "import { InstallStatusList } from '@/components/install-status-list';",
     );
@@ -200,11 +202,14 @@ describe('static documentation platform', () => {
     expect(installText).not.toMatch(
       /curl\s|npm\s+(?:install|i)|cargo\s+install|pip(?:3)?\s+install|uv\s+(?:tool\s+install|add)|brew\s+install/i,
     );
-    expect(indexText).toContain('Loxa is **still in development** at `0.1.0-dev`.');
-    expect(indexText).toContain('[Install status](/docs/install)');
-    expect(projectText).toContain('| Development stage | Still in development |');
+    expect(indexText).toContain(
+      'Loxa is in early development, with Apple Silicon support first. The first stable release is underway.',
+    );
+    expect(indexText).toContain('[Installation](/docs/install)');
+    expect(projectText).toContain('| Development | Early development; first stable release underway |');
     expect(projectText).toContain('| Platform focus | Apple Silicon first |');
-    expect(projectText).toContain('| Validation | Manual stress testing in progress |');
-    expect(projectText).toContain('| Public installers | No supported public installer yet |');
+    expect(projectText).toContain('| Installation | No public install command yet |');
+    expect(projectText).not.toMatch(/manual stress|Rust 1\.96\.1|Windows|experimental/i);
+    expect(meta.pages).not.toContain('experimental');
   });
 });

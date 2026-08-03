@@ -18,8 +18,8 @@ vi.mock('@/lib/source', async () => {
     if (pageSlug !== 'install' && pageSlug !== 'models') return undefined;
 
     const isInstallPage = pageSlug === 'install';
-    const title = isInstallPage ? 'Install status' : 'Models';
-    const heading = isInstallPage ? 'Planned installation channels' : 'Registry';
+    const title = isInstallPage ? 'Installation' : 'Models';
+    const heading = isInstallPage ? 'Installation options' : 'Registry';
 
     return {
       slugs: [pageSlug],
@@ -106,12 +106,12 @@ describe('DocumentationPage copy controls', () => {
       }),
     ).toHaveLength(0);
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Install status' }),
+      screen.getByRole('heading', { level: 1, name: 'Installation' }),
     ).toBeVisible();
     expect(
       screen.getByRole('heading', {
         level: 2,
-        name: 'Planned installation channels',
+        name: 'Installation options',
       }),
     ).toBeVisible();
     expect(screen.getByRole('list', { name: 'Installation methods' })).toBeVisible();

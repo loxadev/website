@@ -28,6 +28,7 @@ const forbidden = [
   /cloud.{0,20}fails?\s+over/i,
   /fails?\s+over.{0,20}(?:to\s+)?(?:the\s+)?cloud/i,
   /no orphan processes/i,
+  /coming soon/i,
   /\bcurl\b[^\n]{0,120}\|\s*(?:ba)?sh\b/i,
   /\bnpm\s+(?:install|i|exec)(?:\s+(?:-g|--global))?\s+loxa\b/i,
   /\bnpx(?:\s+(?:-y|--yes))?\s+loxa\b/i,
@@ -163,6 +164,19 @@ function contentFor(path: string): string {
   return publicContent.get(path) ?? '';
 }
 
+function isApprovedComingSoonCatalogMessage(
+  installer: Installer,
+  field: string,
+  value: string,
+): boolean {
+  return (
+    installer.id === 'brew' &&
+    installer.status === 'coming-soon' &&
+    field === 'message' &&
+    value === 'Coming soon.'
+  );
+}
+
 function findPublicViolations(
   files: readonly PublicTextFile[],
   installers: readonly Installer[],
@@ -185,7 +199,10 @@ function findPublicViolations(
       }
 
       return forbidden
-        .filter((pattern) => pattern.test(value))
+        .filter(
+          (pattern) =>
+            !isApprovedComingSoonCatalogMessage(installer, field, value) && pattern.test(value),
+        )
         .map((pattern) => `installer ${installer.id}.${field}: ${pattern}`);
     }),
   );
@@ -206,10 +223,15 @@ describe('public claim firewall', () => {
 
   test('keeps homepage product capabilities future-facing', () => {
     const homepage = contentFor('app/(marketing)/page.tsx');
+    const normalizedHomepage = homepage.replace(/\s+/g, ' ');
 
-    expect(homepage).toContain('Still in development');
+    expect(normalizedHomepage).toContain(
+      'Loxa is in early development, with Apple Silicon support first.',
+    );
+    expect(normalizedHomepage).toContain('The first stable release is underway.');
     expect(homepage).toContain('Loxa is being built');
     expect(homepage).toContain('href="/docs/install"');
+    expect(homepage).not.toMatch(/stress testing|test evidence|owner approves|siteConfig\.version/i);
     expect(homepage).not.toMatch(
       /What works today|Current source behavior|Current Loxa workflow|Loxa (?:manages|provides|recovers)/i,
     );
@@ -217,12 +239,42 @@ describe('public claim firewall', () => {
 
   test('keeps install channels non-actionable until verification', () => {
     const install = contentFor('content/docs/install.mdx');
+    const expectedInstallers = [
+      {
+        id: 'curl',
+        label: 'curl',
+        status: 'development',
+        message: 'Still in development. No supported install command yet.',
+      },
+      {
+        id: 'npm',
+        label: 'npm',
+        status: 'development',
+        message: 'Still in development. No supported install command yet.',
+      },
+      {
+        id: 'cargo',
+        label: 'cargo',
+        status: 'development',
+        message: 'Still in development. No supported install command yet.',
+      },
+      {
+        id: 'pip-uv',
+        label: 'pip / uv',
+        status: 'development',
+        message: 'Still in development. No supported install command yet.',
+      },
+      { id: 'brew', label: 'brew', status: 'coming-soon', message: 'Coming soon.' },
+    ] as const satisfies readonly Installer[];
 
-    expect(INSTALLERS).toHaveLength(5);
+    expect(INSTALLERS).toEqual(expectedInstallers);
     for (const installer of INSTALLERS) {
+      expect(installer.status).not.toBe('available');
       expect(installer).not.toHaveProperty('command');
     }
-    expect(install).toContain('clean-machine verification');
+    expect(install).toContain(
+      'When an option is ready, this page will include its supported copy-and-paste command.',
+    );
     expect(install).not.toMatch(
       /curl\s|npm\s+(?:install|i)|npx\s+loxa|cargo\s+install|pip(?:3)?\s+install|uv\s+(?:tool\s+install|add)|brew\s+install/i,
     );
@@ -264,6 +316,18 @@ describe('public claim firewall', () => {
     expect(findPublicViolations(publicFiles, INSTALLERS)).toEqual([]);
   });
 
+  test('allows the reviewed coming-soon Homebrew catalog message only', () => {
+    const approvedHomebrew = [
+      { id: 'brew', label: 'brew', status: 'coming-soon', message: 'Coming soon.' },
+    ] as const satisfies readonly Installer[];
+    const unapprovedCurl = [
+      { id: 'curl', label: 'curl', status: 'development', message: 'Coming soon.' },
+    ] as const satisfies readonly Installer[];
+
+    expect(findPublicViolations([], approvedHomebrew)).toEqual([]);
+    expect(findPublicViolations([], unapprovedCurl)).not.toEqual([]);
+  });
+
   test.each([
     ['forbidden claim', 'Production-ready today.'],
     ['private text', prohibitedIdentifier],
@@ -281,34 +345,57 @@ describe('public claim firewall', () => {
     expect(findPublicViolations([], canaryCatalog)).not.toEqual([]);
   });
 
-  test('keeps supervisor commands inside the labeled experimental page', () => {
-    const experimentalPath = 'content/docs/experimental/supervisor.mdx';
-    const experimental = contentFor(experimentalPath);
-    const experimentalLabel = 'Experimental · feature/supervisor at 14daf02';
-    const labelLocations = publicFiles
-      .filter(({ content }) => content.includes(experimentalLabel))
-      .map(({ path }) => path);
-    const nonExperimentalViolations = publicFiles
-      .filter(({ path }) => path !== experimentalPath)
-      .flatMap(({ path, content }) =>
-        ['run', 'ps', 'stop']
-          .filter((command) => new RegExp(`\\bloxa\\s+${command}\\b`, 'i').test(content))
-          .map((command) => `${path}: loxa ${command}`),
-      );
+  test('keeps retired branch-diary material out of public source', () => {
+    const retiredPaths = [
+      'content/docs/experimental/meta.json',
+      'content/docs/experimental/supervisor.mdx',
+    ];
+    const staleClaims = [
+      /origin\/main@/i,
+      /feature\/supervisor/i,
+      /14daf02/i,
+      /a59aec2/i,
+      /current public main branch/i,
+    ];
 
-    expect(labelLocations).toEqual([experimentalPath]);
-    expect(experimental).toContain(experimentalLabel);
-    expect(experimental).toContain('loxa run <id>');
-    expect(experimental).toContain('loxa ps');
-    expect(experimental).toContain('loxa stop <target>');
-    expect(nonExperimentalViolations).toEqual([]);
+    expect(retiredPaths.map(contentFor)).toEqual(['', '']);
+    expect(
+      publicFiles.flatMap(({ path, content }) =>
+        staleClaims
+          .filter((pattern) => pattern.test(content))
+          .map((pattern) => `${path}: ${pattern}`),
+      ),
+    ).toEqual([]);
   });
 
   test('binds command facts to the CLI reference', () => {
     const cli = contentFor('content/docs/cli.mdx');
-    const required = ['loxa doctor', 'loxa list', 'loxa pull <id>', 'loxa rm <id>'];
+    const normalizedCli = cli.replace(/\s+/g, ' ');
+    const required = [
+      'loxa calibrate',
+      'loxa doctor',
+      'loxa pull <id-or-reference> [--quant <quant>]',
+      'loxa list',
+      'loxa rm <id>',
+      'loxa load <id>',
+      'loxa unload',
+      'loxa chat [--chat <id>] <prompt>',
+      'loxa chats <subcommand>',
+      'loxa run <id> [--ctx <u32>] [--port <u16>] [--engine <backend>]',
+      'loxa serve [--model <id>] [--port <u16>] [--inference-port <u16>] [--engine <backend>]',
+      'loxa ps',
+      'loxa stop <target>',
+    ];
+    const pullFacts = [
+      'built-in or user registry ID',
+      '`owner/repo` or `hf://owner/repo[@revision][:filename]`',
+      '`--quant <quant>` participates only in Hugging Face resolution',
+      'For a registry ID, the registry path ignores `--quant`.',
+    ];
 
     expect(required.filter((fact) => !cli.includes(fact))).toEqual([]);
+    expect(pullFacts.filter((fact) => !normalizedCli.includes(fact))).toEqual([]);
+    expect(cli).not.toMatch(/\bpi-acceptance\b/i);
   });
 
   test('binds registry rows and token variables to the models reference', () => {
@@ -320,6 +407,8 @@ describe('public claim firewall', () => {
       '| `qwen25-coder-7b-q8` | 7B | Q8_0 | apache-2.0 |',
       '| `gemma-3-4b-it-q4` | 4B | Q4_K_M | gemma |',
       '| `qwen3-14b-q4` | 14B | Q4_K_M | apache-2.0 |',
+      '| `gemma-4-e4b-it-q4` | E4B | Q4_K_M | apache-2.0 |',
+      '| `loxa` | 12B | UD-Q4_K_XL | apache-2.0 |',
     ];
     const requiredVariables = [
       'HF_TOKEN',
@@ -333,11 +422,18 @@ describe('public claim firewall', () => {
     expect(requiredVariables.filter((variable) => !models.includes(variable))).toEqual([]);
   });
 
-  test('binds version, toolchain, and license facts to project status', () => {
+  test('binds current development, platform, installation, and license facts to project status', () => {
     const project = contentFor('content/docs/project.mdx');
-    const required = ['0.1.0-dev', 'Rust 1.96.1', 'Apache License 2.0'];
+    const required = [
+      '| Development | Early development; first stable release underway |',
+      '| Platform focus | Apple Silicon first |',
+      '| Installation | No public install command yet |',
+      'Apache License 2.0',
+      'github.com/loxadev/loxa',
+    ];
 
     expect(required.filter((fact) => !project.includes(fact))).toEqual([]);
+    expect(project).not.toMatch(/manual stress|Rust 1\.96\.1|Windows|experimental/i);
   });
 });
 

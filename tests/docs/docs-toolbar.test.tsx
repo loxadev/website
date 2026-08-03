@@ -23,20 +23,13 @@ vi.mock('fumadocs-ui/contexts/tree', () => ({
       name: 'Documentation',
       children: [
         { $id: 'overview', type: 'page', name: 'Overview', url: '/docs' },
-        { $id: 'models', type: 'page', name: 'Models', url: '/docs/models' },
         {
-          $id: 'experimental',
-          type: 'folder',
-          name: 'Experimental',
-          children: [
-            {
-              $id: 'supervisor',
-              type: 'page',
-              name: 'Supervisor',
-              url: '/docs/experimental/supervisor',
-            },
-          ],
+          $id: 'installation',
+          type: 'page',
+          name: 'Installation',
+          url: '/docs/install',
         },
+        { $id: 'models', type: 'page', name: 'Models', url: '/docs/models' },
       ],
     },
   }),
@@ -120,10 +113,11 @@ describe('DocsToolbar', () => {
       'aria-current',
       'page',
     );
-    expect(screen.getByRole('link', { name: 'Supervisor' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Installation' })).toHaveAttribute(
       'href',
-      '/docs/experimental/supervisor',
+      '/docs/install',
     );
+    expect(screen.queryByRole('link', { name: 'Supervisor' })).not.toBeInTheDocument();
   });
 
   it('closes on cancel, link activation, backdrop, close control, and desktop crossing', async () => {
@@ -142,7 +136,7 @@ describe('DocsToolbar', () => {
     expect(trigger).toHaveFocus();
 
     await user.click(trigger);
-    await user.click(screen.getByRole('link', { name: 'Supervisor' }));
+    await user.click(screen.getByRole('link', { name: 'Installation' }));
     await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
 
     await user.click(trigger);
