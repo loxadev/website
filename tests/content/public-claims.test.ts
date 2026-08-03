@@ -28,6 +28,7 @@ const forbidden = [
   /cloud.{0,20}fails?\s+over/i,
   /fails?\s+over.{0,20}(?:to\s+)?(?:the\s+)?cloud/i,
   /no orphan processes/i,
+  /coming soon/i,
   /\bcurl\b[^\n]{0,120}\|\s*(?:ba)?sh\b/i,
   /\bnpm\s+(?:install|i|exec)(?:\s+(?:-g|--global))?\s+loxa\b/i,
   /\bnpx(?:\s+(?:-y|--yes))?\s+loxa\b/i,
@@ -206,10 +207,15 @@ describe('public claim firewall', () => {
 
   test('keeps homepage product capabilities future-facing', () => {
     const homepage = contentFor('app/(marketing)/page.tsx');
+    const normalizedHomepage = homepage.replace(/\s+/g, ' ');
 
-    expect(homepage).toContain('Still in development');
+    expect(normalizedHomepage).toContain(
+      'Loxa is in early development, with Apple Silicon support first.',
+    );
+    expect(normalizedHomepage).toContain('The first stable release is underway.');
     expect(homepage).toContain('Loxa is being built');
     expect(homepage).toContain('href="/docs/install"');
+    expect(homepage).not.toMatch(/stress testing|test evidence|owner approves|siteConfig\.version/i);
     expect(homepage).not.toMatch(
       /What works today|Current source behavior|Current Loxa workflow|Loxa (?:manages|provides|recovers)/i,
     );
@@ -220,7 +226,11 @@ describe('public claim firewall', () => {
 
     expect(INSTALLERS).toHaveLength(5);
     for (const installer of INSTALLERS) {
+      expect(installer.status).not.toBe('available');
       expect(installer).not.toHaveProperty('command');
+      if (installer.status !== 'available') {
+        expect(installer.message).toBe('Not available yet.');
+      }
     }
     expect(install).toContain('clean-machine verification');
     expect(install).not.toMatch(

@@ -21,7 +21,7 @@ export function SiteFooter() {
             Loxa
           </Link>
           <p className={styles.status}>
-            Still in development <span aria-hidden="true">·</span> {siteConfig.version}
+            Early development <span aria-hidden="true">·</span> Apple Silicon first
           </p>
         </div>
 

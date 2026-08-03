@@ -116,11 +116,11 @@ describe('DocumentationPage copy controls', () => {
     ).toBeVisible();
     expect(screen.getByRole('list', { name: 'Installation methods' })).toBeVisible();
     expect(screen.getAllByRole('listitem').map((item) => item.textContent)).toEqual([
-      'curlStill in development. No supported install command yet.',
-      'npmStill in development. No supported install command yet.',
-      'cargoStill in development. No supported install command yet.',
-      'pip / uvStill in development. No supported install command yet.',
-      'brewComing soon. No supported install command yet.',
+      'curlNot available yet.',
+      'npmNot available yet.',
+      'cargoNot available yet.',
+      'pip / uvNot available yet.',
+      'brewNot available yet.',
     ]);
     expect(screen.queryByRole('button', { name: /copy .* command/i })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View Markdown' })).toHaveAttribute(

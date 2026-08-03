@@ -17,27 +17,27 @@ const allUnavailableFixture = [
     id: 'curl',
     label: 'curl',
     status: 'development',
-    message: 'Still in development. No supported install command yet.',
+    message: 'Not available yet.',
   },
   {
     id: 'npm',
     label: 'npm',
     status: 'development',
-    message: 'Still in development. No supported install command yet.',
+    message: 'Not available yet.',
   },
   {
     id: 'cargo',
     label: 'cargo',
     status: 'development',
-    message: 'Still in development. No supported install command yet.',
+    message: 'Not available yet.',
   },
   {
     id: 'pip-uv',
     label: 'pip / uv',
     status: 'development',
-    message: 'Still in development. No supported install command yet.',
+    message: 'Not available yet.',
   },
-  { id: 'brew', label: 'brew', status: 'coming-soon', message: 'Coming soon.' },
+  { id: 'brew', label: 'brew', status: 'development', message: 'Not available yet.' },
 ] as const satisfies readonly Installer[];
 
 const availableFixture = [
@@ -210,11 +210,11 @@ describe('InstallCommandTabs', () => {
     const brewTab = screen.getByRole('tab', { name: 'brew' });
     expect(brewTab).toHaveFocus();
     expect(brewTab).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tabpanel')).toHaveTextContent(/^Coming soon\.$/);
+    expect(screen.getByRole('tabpanel')).toHaveTextContent(/^Not available yet\.$/);
     await user.keyboard('{Home}{ArrowLeft}');
     expect(brewTab).toHaveFocus();
     expect(brewTab).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tabpanel')).toHaveTextContent(/^Coming soon\.$/);
+    expect(screen.getByRole('tabpanel')).toHaveTextContent(/^Not available yet\.$/);
   });
 
   it('scrolls the selected tab into view after keyboard selection', async () => {
@@ -392,7 +392,7 @@ describe('InstallCommandTabs', () => {
 
     expect(selectedPanel).not.toBeNull();
     expect(selectedPanel).not.toHaveAttribute('hidden');
-    expect(selectedPanel).toHaveTextContent('Still in development. No supported install command yet.');
+    expect(selectedPanel).toHaveTextContent('Not available yet.');
   });
 
   it('protects the installer target, breakpoint, color, motion, and typography contracts', async () => {

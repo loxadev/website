@@ -6,7 +6,7 @@ export type Installer =
   | Readonly<{
       id: InstallerId;
       label: InstallerLabel;
-      status: 'development' | 'coming-soon';
+      status: 'development';
       message: string;
     }>;
 
@@ -15,33 +15,30 @@ export const INSTALLERS: readonly Installer[] = [
     id: 'curl',
     label: 'curl',
     status: 'development',
-    message: 'Still in development. No supported install command yet.',
+    message: 'Not available yet.',
   },
   {
     id: 'npm',
     label: 'npm',
     status: 'development',
-    message: 'Still in development. No supported install command yet.',
+    message: 'Not available yet.',
   },
   {
     id: 'cargo',
     label: 'cargo',
     status: 'development',
-    message: 'Still in development. No supported install command yet.',
+    message: 'Not available yet.',
   },
   {
     id: 'pip-uv',
     label: 'pip / uv',
     status: 'development',
-    message: 'Still in development. No supported install command yet.',
+    message: 'Not available yet.',
   },
-  { id: 'brew', label: 'brew', status: 'coming-soon', message: 'Coming soon.' },
+  { id: 'brew', label: 'brew', status: 'development', message: 'Not available yet.' },
 ] as const satisfies readonly Installer[];
 
 export function installerDocumentationDetail(installer: Installer): string {
   if (installer.status === 'available') return installer.command;
-  if (installer.status === 'coming-soon') {
-    return `${installer.message} No supported install command yet.`;
-  }
   return installer.message;
 }
