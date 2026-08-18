@@ -7,6 +7,7 @@ const outputDirectory = resolve(repositoryRoot, 'out');
 
 const documentRoutes = [
   '/',
+  '/early-access',
   '/docs',
   '/docs/install',
   '/docs/doctor',

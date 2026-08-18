@@ -6,6 +6,7 @@ import styles from './site-footer.module.css';
 
 const footerLinks: readonly SiteLink[] = [
   { label: 'Docs', href: '/docs' },
+  { label: 'Early access', href: '/early-access' },
   { label: 'Installation', href: '/docs/install' },
   { label: 'Project', href: '/docs/project' },
   { label: 'GitHub', href: siteConfig.sourceUrl, external: true },

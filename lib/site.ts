@@ -16,6 +16,7 @@ export type SiteLink = Readonly<{
 
 export const siteLinks: readonly SiteLink[] = [
   { label: 'Product', href: '/#product-direction' },
+  { label: 'Early access', href: '/early-access' },
   { label: 'CLI', href: '/docs/cli' },
   { label: 'Project', href: '/docs/project' },
   { label: 'GitHub', href: siteConfig.sourceUrl, external: true },

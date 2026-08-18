@@ -36,7 +36,10 @@ export default function MarketingPage() {
             behind one local API.
           </p>
           <div className={styles.actions}>
-            <Link className={styles.primaryAction} href="/docs">
+            <Link className={styles.primaryAction} href="/early-access">
+              Help shape Loxa
+            </Link>
+            <Link className={styles.secondaryAction} href="/docs">
               Read the docs
             </Link>
             <a className={styles.secondaryAction} href={siteConfig.sourceUrl}>

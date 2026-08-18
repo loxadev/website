@@ -50,6 +50,10 @@ describe('SiteHeader', () => {
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Loxa' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Early access' })).toHaveAttribute(
+      'href',
+      '/early-access',
+    );
     expect(container.querySelectorAll('img[src^="/brand/"]')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'Search documentation' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Switch to dark theme' })).toBeEnabled();

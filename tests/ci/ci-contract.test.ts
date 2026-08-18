@@ -12,6 +12,7 @@ const staticCheckPath = join(repositoryRoot, 'scripts/check-static-export.mjs');
 const publicHeadersPath = join(repositoryRoot, 'public/_headers');
 const documentPaths = [
   'index.html',
+  'early-access.html',
   'docs.html',
   'docs/install.html',
   'docs/doctor.html',
@@ -117,6 +118,24 @@ async function writeStaticFixture(
 }
 
 describe('CI and static-export contract', () => {
+  test('rejects a static export missing the early-access route', async () => {
+    const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
+
+    try {
+      await writeStaticFixture(fixtureDirectory);
+      await rm(join(fixtureDirectory, 'out/early-access.html'), { force: true });
+
+      await expect(
+        execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
+      ).rejects.toMatchObject({
+        code: 1,
+        stderr: expect.stringContaining('missing document for /early-access'),
+      });
+    } finally {
+      await rm(fixtureDirectory, { recursive: true, force: true });
+    }
+  });
+
   test('rejects a retired experimental documentation route', async () => {
     const fixtureDirectory = await mkdtemp(join(tmpdir(), 'loxa-static-check-'));
 
@@ -312,7 +331,7 @@ describe('CI and static-export contract', () => {
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
       ).resolves.toMatchObject({
-        stdout: expect.stringContaining('18 routes checked'),
+        stdout: expect.stringContaining('19 routes checked'),
       });
 
       const forbiddenBundle = join(
@@ -345,7 +364,7 @@ describe('CI and static-export contract', () => {
 
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
-      ).resolves.toMatchObject({ stdout: expect.stringContaining('18 routes checked') });
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('19 routes checked') });
     } finally {
       await rm(fixtureDirectory, { recursive: true, force: true });
     }
@@ -403,7 +422,7 @@ describe('CI and static-export contract', () => {
 
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
-      ).resolves.toMatchObject({ stdout: expect.stringContaining('18 routes checked') });
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('19 routes checked') });
 
       const indexPath = join(outputDirectory, 'index.html');
       await writeFile(
@@ -416,7 +435,7 @@ describe('CI and static-export contract', () => {
 
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
-      ).resolves.toMatchObject({ stdout: expect.stringContaining('18 routes checked') });
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('19 routes checked') });
 
       const faviconPath = join(outputDirectory, 'favicon.ico');
       await rm(faviconPath);
@@ -558,7 +577,7 @@ describe('CI and static-export contract', () => {
 
       await expect(
         execFileAsync(process.execPath, [staticCheckPath], { cwd: fixtureDirectory }),
-      ).resolves.toMatchObject({ stdout: expect.stringContaining('18 routes checked') });
+      ).resolves.toMatchObject({ stdout: expect.stringContaining('19 routes checked') });
     } finally {
       await rm(fixtureDirectory, { recursive: true, force: true });
     }

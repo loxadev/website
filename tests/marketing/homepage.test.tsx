@@ -34,6 +34,10 @@ describe('MarketingPage', () => {
         'Loxa is an open-source local AI node for running open models on hardware you control. It is being built to manage compatible models and the runtime behind one local API.',
       ),
     ).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Help shape Loxa' })).toHaveAttribute(
+      'href',
+      '/early-access',
+    );
     expect(screen.getByRole('link', { name: 'Read the docs' })).toHaveAttribute(
       'href',
       '/docs',
@@ -193,6 +197,10 @@ describe('MarketingPage', () => {
     expect(within(footer).getByRole('link', { name: 'Installation' })).toHaveAttribute(
       'href',
       '/docs/install',
+    );
+    expect(within(footer).getByRole('link', { name: 'Early access' })).toHaveAttribute(
+      'href',
+      '/early-access',
     );
   });
 });
