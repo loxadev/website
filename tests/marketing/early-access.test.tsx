@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import type { ComponentType } from 'react';
 
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import sitemap from '@/app/sitemap';
 
@@ -10,12 +11,22 @@ vi.mock('@/lib/source', () => ({
   source: { getPages: () => [] },
 }));
 
-const responderUrl =
+const technicalResponderUrl =
   'https://docs.google.com/forms/d/e/1FAIpQLSdiywaLR4RieIqkJXi1dVGqcYycfhtzTz9tNbpwomY4eujWSA/viewform';
-const embedUrl = responderUrl + '?embedded=true';
+const technicalEmbedUrl = technicalResponderUrl + '?embedded=true';
+const nonTechnicalResponderUrl =
+  'https://docs.google.com/forms/d/e/1FAIpQLSedsXWsjs2nmlw8luv4i5edHLz-atibAHaCuRQeSifXDw3z6Q/viewform?usp=publish-editor';
+const nonTechnicalEmbedUrl = nonTechnicalResponderUrl + '&embedded=true';
 
 describe('EarlyAccessPage', () => {
-  it('renders the approved low-friction research flow', async () => {
+  afterEach(cleanup);
+
+  beforeEach(() => {
+    window.history.replaceState({}, '', '/early-access');
+  });
+
+  it('lets visitors choose either audience without changing the technical form', async () => {
+    const user = userEvent.setup();
     const route = await vi
       .importActual<{
         default: ComponentType;
@@ -37,33 +48,71 @@ describe('EarlyAccessPage', () => {
         name: 'Help decide what Loxa should solve first.',
       }),
     ).toBeVisible();
-    expect(screen.getByText('About 45 seconds · 3 required questions')).toBeVisible();
     expect(
-      screen.getByText(
-        'Your email is used for early-access updates. If you volunteer, we may also contact you for product research. You can opt out at any time.',
-      ),
+      screen.getByText(/whether you already run local ai or are just curious/i),
     ).toBeVisible();
+    expect(screen.queryByTitle(/product-research form/i)).not.toBeInTheDocument();
 
-    const form = screen.getByTitle('Loxa early-access and product-research form');
-    expect(form).toHaveAttribute('src', embedUrl);
-    expect(form).toHaveAttribute('width', '100%');
-    expect(form).toHaveAttribute('height', '2800');
-    expect(form).toHaveAttribute('loading', 'lazy');
+    const technicalChoice = screen.getByRole('button', {
+      name: /technical.*already use or build local ai/i,
+    });
+    const nonTechnicalChoice = screen.getByRole('button', {
+      name: /non-technical.*new to local ai/i,
+    });
 
-    expect(screen.getByRole('link', { name: 'Open the form in a new tab' })).toHaveAttribute(
-      'href',
-      responderUrl,
+    expect(technicalChoice).toHaveAttribute('aria-pressed', 'false');
+    expect(nonTechnicalChoice).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(technicalChoice);
+
+    const technicalForm = screen.getByTitle(
+      'Loxa technical early-access and product-research form',
     );
-    expect(screen.getByRole('link', { name: 'Open the form in a new tab' })).toHaveAttribute(
-      'target',
-      '_blank',
+    expect(technicalForm).toHaveAttribute('src', technicalEmbedUrl);
+    expect(technicalForm).toHaveAttribute('width', '100%');
+    expect(technicalForm).toHaveAttribute('loading', 'lazy');
+    expect(technicalChoice).toHaveAttribute('aria-pressed', 'true');
+    expect(window.location.search).toBe('?audience=technical');
+
+    expect(
+      screen.getByRole('link', { name: 'Open the technical form in a new tab' }),
+    ).toHaveAttribute('href', technicalResponderUrl);
+
+    await user.click(nonTechnicalChoice);
+
+    expect(
+      screen.queryByTitle('Loxa technical early-access and product-research form'),
+    ).not.toBeInTheDocument();
+
+    const nonTechnicalForm = screen.getByTitle(
+      'Loxa non-technical early-access and product-research form',
     );
+    expect(nonTechnicalForm).toHaveAttribute('src', nonTechnicalEmbedUrl);
+    expect(nonTechnicalChoice).toHaveAttribute('aria-pressed', 'true');
+    expect(window.location.search).toBe('?audience=non-technical');
+    expect(
+      screen.getByRole('link', { name: 'Open the non-technical form in a new tab' }),
+    ).toHaveAttribute('href', nonTechnicalResponderUrl);
 
     expect(route.metadata).toMatchObject({
       title: 'Early access',
       alternates: { canonical: '/early-access' },
       openGraph: { url: '/early-access' },
     });
+  });
+
+  it('preselects the non-technical form from its QR-code destination', async () => {
+    window.history.replaceState({}, '', '/early-access?audience=non-technical');
+
+    const route = await vi.importActual<{
+      default: ComponentType;
+    }>('@/app/(marketing)/early-access/page');
+
+    render(<route.default />);
+
+    expect(
+      await screen.findByTitle('Loxa non-technical early-access and product-research form'),
+    ).toHaveAttribute('src', nonTechnicalEmbedUrl);
   });
 
   it('publishes the early-access route in the sitemap', () => {
