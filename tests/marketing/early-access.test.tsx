@@ -74,9 +74,14 @@ describe('EarlyAccessPage', () => {
     expect(technicalChoice).toHaveAttribute('aria-pressed', 'true');
     expect(window.location.search).toBe('?audience=technical');
 
+    const technicalFallbackLink = screen.getByRole('link', {
+      name: 'Open the technical form in a new tab',
+    });
+    expect(technicalFallbackLink).toHaveAttribute('href', technicalResponderUrl);
     expect(
-      screen.getByRole('link', { name: 'Open the technical form in a new tab' }),
-    ).toHaveAttribute('href', technicalResponderUrl);
+      technicalFallbackLink.compareDocumentPosition(technicalForm) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
 
     await user.click(nonTechnicalChoice);
 
@@ -90,9 +95,14 @@ describe('EarlyAccessPage', () => {
     expect(nonTechnicalForm).toHaveAttribute('src', nonTechnicalEmbedUrl);
     expect(nonTechnicalChoice).toHaveAttribute('aria-pressed', 'true');
     expect(window.location.search).toBe('?audience=non-technical');
+    const nonTechnicalFallbackLink = screen.getByRole('link', {
+      name: 'Open the non-technical form in a new tab',
+    });
+    expect(nonTechnicalFallbackLink).toHaveAttribute('href', nonTechnicalResponderUrl);
     expect(
-      screen.getByRole('link', { name: 'Open the non-technical form in a new tab' }),
-    ).toHaveAttribute('href', nonTechnicalResponderUrl);
+      nonTechnicalFallbackLink.compareDocumentPosition(nonTechnicalForm) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
 
     expect(route.metadata).toMatchObject({
       title: 'Early access',
