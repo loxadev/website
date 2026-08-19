@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
 
+import { EarlyAccessFormSelector } from './form-selector';
 import styles from './page.module.css';
 
-const responderUrl =
-  'https://docs.google.com/forms/d/e/1FAIpQLSdiywaLR4RieIqkJXi1dVGqcYycfhtzTz9tNbpwomY4eujWSA/viewform';
-const embedUrl = responderUrl + '?embedded=true';
 const description =
-  'Help shape Loxa by sharing how you run local AI, what breaks, and what would make it dependable.';
+  'Help shape Loxa whether you already run local AI or are just getting started.';
 
 export const metadata: Metadata = {
   title: 'Early access',
@@ -35,48 +33,26 @@ export default function EarlyAccessPage() {
             Help decide what Loxa should solve first.
           </h1>
           <p className={styles.lede}>
-            Loxa is still early. Tell us how you run local AI, what breaks, and what
-            would make it dependable.
+            Whether you already run local AI or are just curious, choose the short form
+            that fits you best.
           </p>
-          <p className={styles.formDetails}>About 45 seconds · 3 required questions</p>
         </div>
       </section>
 
       <section className={styles.formSection} aria-labelledby="research-form-title">
         <div className={styles.formIntro}>
           <p className={styles.sectionLabel}>Product research</p>
-          <h2 id="research-form-title">Tell us what gets in your way.</h2>
+          <h2 id="research-form-title">Which best describes you?</h2>
           <p className={styles.formDescription}>
-            Short answers are enough. Optional questions help us understand your setup
-            without making the form harder to finish.
+            Pick the technical form if you already run local AI. Pick the non-technical
+            form if you are new to it or simply curious.
           </p>
           <p className={styles.privacyNote}>
-            Your email is used for early-access updates. If you volunteer, we may also
-            contact you for product research. You can opt out at any time.
+            Each form explains how your responses will be used before you begin.
           </p>
         </div>
 
-        <div className={styles.formColumn}>
-          <div className={styles.formShell}>
-            <iframe
-              className={styles.form}
-              src={embedUrl}
-              title="Loxa early-access and product-research form"
-              width="100%"
-              height="2800"
-              loading="lazy"
-            >
-              Loading the Loxa early-access form…
-            </iframe>
-          </div>
-          <p className={styles.fallback}>
-            If the embedded form does not load,{' '}
-            <a href={responderUrl} target="_blank" rel="noreferrer">
-              Open the form in a new tab
-            </a>
-            .
-          </p>
-        </div>
+        <EarlyAccessFormSelector />
       </section>
     </main>
   );

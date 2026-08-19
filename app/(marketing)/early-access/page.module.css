@@ -20,8 +20,7 @@
 }
 
 .eyebrow,
-.sectionLabel,
-.formDetails {
+.sectionLabel {
   margin: 0;
   font-family: var(--font-ibm-plex-mono), monospace;
   font-size: 0.75rem;
@@ -56,16 +55,6 @@
   color: var(--loxa-text-muted);
   font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
   line-height: 1.55;
-}
-
-.formDetails {
-  width: fit-content;
-  padding: 10px 12px;
-  margin-top: 32px;
-  border: 1px solid var(--loxa-divider);
-  border-radius: 6px;
-  background: var(--loxa-subtle-surface);
-  color: var(--loxa-text);
 }
 
 .formSection {
@@ -116,6 +105,79 @@
 
 .formColumn {
   min-width: 0;
+  margin-top: 32px;
+}
+
+.selector {
+  min-width: 0;
+}
+
+.choiceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.choiceButton {
+  min-height: 116px;
+  padding: 20px;
+  border: 1px solid var(--loxa-divider);
+  border-radius: 8px;
+  background: var(--loxa-subtle-surface);
+  color: var(--loxa-text);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    transform 150ms ease;
+}
+
+.choiceButton:hover {
+  border-color: var(--loxa-text-muted);
+  transform: translateY(-1px);
+}
+
+.choiceButton:focus-visible {
+  outline: 2px solid var(--loxa-text);
+  outline-offset: 3px;
+}
+
+.choiceButton[aria-pressed='true'] {
+  border-color: var(--loxa-text);
+  background: var(--loxa-text);
+  color: var(--loxa-surface);
+}
+
+.choiceTitle,
+.choiceDescription {
+  display: block;
+}
+
+.choiceTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.choiceDescription {
+  margin-top: 8px;
+  color: var(--loxa-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.choiceButton[aria-pressed='true'] .choiceDescription {
+  color: inherit;
+  opacity: 0.75;
+}
+
+.selectionHint {
+  padding: 24px;
+  margin: 24px 0 0;
+  border: 1px dashed var(--loxa-divider);
+  border-radius: 8px;
+  color: var(--loxa-text-muted);
+  text-align: center;
 }
 
 .formShell {
@@ -128,9 +190,16 @@
 .form {
   display: block;
   width: 100%;
-  height: 2800px;
   border: 0;
   border-radius: inherit;
+}
+
+.technicalForm {
+  height: 2800px;
+}
+
+.nonTechnicalForm {
+  height: 4000px;
 }
 
 .fallback {
@@ -181,19 +250,22 @@
     margin-top: 24px;
   }
 
-  .formDetails {
-    width: 100%;
-    margin-top: 24px;
-    text-align: center;
+  .choiceGrid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .form {
+  .technicalForm {
     height: 2950px;
+  }
+
+  .nonTechnicalForm {
+    height: 4200px;
   }
 }
 
 @media (forced-colors: active) {
-  .formDetails,
+  .choiceButton,
+  .selectionHint,
   .formShell {
     border-color: CanvasText;
   }
