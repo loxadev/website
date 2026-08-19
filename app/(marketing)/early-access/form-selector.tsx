@@ -80,6 +80,13 @@ export function EarlyAccessFormSelector() {
 
       {selectedForm ? (
         <div className={styles.formColumn}>
+          <p className={styles.fallback}>
+            If the embedded form does not load,{' '}
+            <a href={selectedForm.responderUrl} target="_blank" rel="noreferrer">
+              Open the {selectedForm.label} form in a new tab
+            </a>
+            .
+          </p>
           <div className={styles.formShell}>
             <iframe
               className={`${styles.form} ${
@@ -93,13 +100,6 @@ export function EarlyAccessFormSelector() {
               Loading the Loxa {selectedForm.label} early-access form…
             </iframe>
           </div>
-          <p className={styles.fallback}>
-            If the embedded form does not load,{' '}
-            <a href={selectedForm.responderUrl} target="_blank" rel="noreferrer">
-              Open the {selectedForm.label} form in a new tab
-            </a>
-            .
-          </p>
         </div>
       ) : (
         <p className={styles.selectionHint}>Choose the option that fits you to continue.</p>
